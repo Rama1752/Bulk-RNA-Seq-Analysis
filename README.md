@@ -1,5 +1,7 @@
 # Bulk RNA-Seq Analysis
 
+:Direct Hit:
+
 ## Quick Navigation
 
 - [1. Fetching SRA Files](#1-fetching-sra-files)

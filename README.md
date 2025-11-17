@@ -2,16 +2,16 @@
 
 ## Quick Navigation
 
-- [1. Fetching SRA Files](#fetching-sra-files)
-- [2. FastQC - Quality Control](#fastqc---quality-control)
-- [3. Trimming Reads](#trimming-reads)
-- [4. Post-trimming Quality Control](#post-trimming-quality-control)
-- [5. Reference Genome Preparation (Indexing)](#reference-genome-preparation-indexing)
-- [6. Alignment/Mapping](#alignmentmapping)
-- [7. SAM/BAM Processing (Sorting/Indexing)](#sambam-processing-sortingindexing)
-- [8. Assessing Alignment Quality](#assessing-alignment-quality)
-- [9. Feature Counting (Read Quantification)](#feature-counting-read-quantification)
-- [10. Downstream Analysis](#downstream-analysis)
+- [1. Fetching SRA Files](#1-fetching-sra-files)
+- [2. FastQC - Quality Control](#2-fastqc-quality-control)
+- [3. Trimming Reads](#3-trimming-reads)
+- [4. Post-trimming Quality Control](#4-post-trimming-quality-control)
+- [5. Reference Genome Preparation (Indexing)](#5-reference-genome-preparation-indexing)
+- [6. Alignment/Mapping](#6-alignment-mapping)
+- [7. SAM/BAM Processing (Sorting/Indexing)](#7-sam-bam-processing-sorting-indexing)
+- [8. Assessing Alignment Quality](#8-assessing-alignment-quality)
+- [9. Feature Counting (Read Quantification)](#9-feature-counting-read-quantification)
+- [10. Downstream Analysis](#10-downstream-analysis)
 
 ---
 

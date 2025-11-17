@@ -1,6 +1,19 @@
 # Bulk RNA-Seq Analysis
 
-:Direct Hit:
+🎯 Project Overview
+This project demonstrates a complete Bulk RNA-Seq workflow, from raw sequencing data up to differential expression analysis using DESeq2. We analyzed the effect of  **LCOR overexpression** and how it affects gene transcription in two cell lines that differ in nuclear receptor status: 
+- **MCF7 (NR-positive)** — nuclear receptor–positive
+- **MDA-MB-231 (NR-negative)** — nuclear receptor–negative  
+LCOR acts both as a transcriptional corepressor and activator, and this dataset enables comparison of its regulatory activity in nuclear receptor–dependent versus independent contexts.
+
+For each cell line we checked overexpression and normal behaviour of LCOR protein
+
+📂 Dataset Information:
+- **GEO Accession:** GSE292767
+- **Experiment Type:** Expression profiling by high-throughput sequencing
+- **Description:** RNA-Seq experiment in breast cancer cell lines to check the effect of LCOR overexpression in MCF7 and MDA-MB-231.
+
+
 
 ## Quick Navigation
 

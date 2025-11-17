@@ -30,10 +30,15 @@ For each cell line we checked overexpression and normal behaviour of LCOR protei
 
 ---
 
+## Workflow
+## 1. Downloading necessary tools
+
+
 ## 1. Fetching SRA Files
 
 Download sample FASTQ files from the Sequence Read Archive (SRA).  
-**Tools:** `sra-tools` (`prefetch`, `fasterq-dump`)
+**Tools:** `sra-tools` (`prefetch`, `fastq-dump`)
+
 
 ---
 

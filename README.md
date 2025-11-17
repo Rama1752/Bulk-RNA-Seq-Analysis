@@ -1,4 +1,4 @@
-# RNA-Seq Analysis Pipeline Outline
+# Bulk RNA-Seq Analysis
 
 ## Quick Navigation
 

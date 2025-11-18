@@ -17,120 +17,130 @@ For each cell line we checked overexpression and normal behaviour of LCOR protei
 
 ## Quick Navigation
 
-- [1. Fetching SRA Files](#1-fetching-sra-files)
-- [2. FastQC - Quality Control](#2-fastqc-quality-control)
-- [3. Trimming Reads](#3-trimming-reads)
-- [4. Post-trimming Quality Control](#4-post-trimming-quality-control)
-- [5. Reference Genome Preparation (Indexing)](#5-reference-genome-preparation-indexing)
-- [6. Alignment/Mapping](#6-alignment-mapping)
-- [7. SAM/BAM Processing (Sorting/Indexing)](#7-sam-bam-processing-sorting-indexing)
-- [8. Assessing Alignment Quality](#8-assessing-alignment-quality)
-- [9. Feature Counting (Read Quantification)](#9-feature-counting-read-quantification)
-- [10. Downstream Analysis](#10-downstream-analysis)
+- [1. Downloading necessary tools](#1-downloading-necessary-tools)
+- [2. Fetching SRA Files](#2-fetching-sra-files)
+- [3. FastQC - Quality Control](#3-fastqc-quality-control)
+- [4. Trimming Reads](#4-trimming-reads)
+- [5. Post-trimming Quality Control](#5-post-trimming-quality-control)
+- [6. Reference Genome Preparation (Indexing)](#6-reference-genome-preparation-indexing)
+- [7. Alignment/Mapping](#7-alignment-mapping)
+- [8. SAM/BAM Processing (Sorting/Indexing)](#8-sam-bam-processing-sorting-indexing)
+- [9. Assessing Alignment Quality](#9-assessing-alignment-quality)
+- [10. Feature Counting (Read Quantification)](#10-feature-counting-read-quantification)
+- [11. Downstream Analysis](#11-downstream-analysis)
 
 ---
 
 ## Workflow
 ## 1. Downloading necessary tools
 
+---
 
-## 1. Fetching SRA Files
+## 2. Fetching SRA Files
+- Download SRA files using the SRA toolkit.
+- Convert the SRA files into FASTQ files using fastq-dump.
+- Save the file in .gz format i.e. gzip file so that it would take less space.
 
-Download sample FASTQ files from the Sequence Read Archive (SRA).  
+```bash
+#Download SRA files
+prefetch SRA SRR32858437
+
+#Covert SRA files to FASTQ files
+fastq-dump --outdir FASTQ_files --gzip --skip-technical-reads --readids --read-filter pass --dumpbase --split-3 --clip SRR32858437/SRR32858437.sra
+```
 **Tools:** `sra-tools` (`prefetch`, `fastq-dump`)
-
 
 ---
 
-## 2. FastQC - Quality Control
+## 3. FastQC - Quality Control
 
 Assess the quality of raw sequencing reads using FastQC.  
 **Tool:** [`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
 
 ---
 
-## 3. Trimming Reads
+## 4. Trimming Reads
 
 Remove adapter contamination and poor-quality bases.  
 **Tools:** [`Trimmomatic`](http://www.usadellab.org/cms/?page=trimmomatic), [`Cutadapt`](https://cutadapt.readthedocs.io/en/stable/), [`fastp`](https://github.com/OpenGene/fastp)
 
 ---
 
-## 4. Post-trimming Quality Control
+## 5. Post-trimming Quality Control
 
 Re-run QC after trimming to ensure cleaning steps were effective.  
 **Tool:** `FastQC`
 
 ---
 
-## 5. Reference Genome Preparation (Indexing)
+## 6. Reference Genome Preparation (Indexing)
 
 Index the reference genome to allow quick alignment.  
 **Tools:** `HISAT2-build`, `STAR`, `Bowtie2-build`, etc.
 
 ---
 
-## 6. Alignment/Mapping
+## 7. Alignment/Mapping
 
 Map the reads to the reference genome/transcriptome.  
 **Tools:** [`HISAT2`](https://daehwankimlab.github.io/hisat2/), [`STAR`](https://github.com/alexdobin/STAR), `Bowtie2`
 
 ---
 
-## 7. SAM/BAM Processing (Sorting/Indexing)
+## 8. SAM/BAM Processing (Sorting/Indexing)
 
 Convert SAM to BAM; sort and index the alignments.  
 **Tools:** [`samtools`](http://www.htslib.org/)
 
 ---
 
-## 8. Assessing Alignment Quality
+## 9. Assessing Alignment Quality
 
 Generate reports on mapping performance and quality.  
 **Tools:** `samtools flagstat`, `Qualimap`, `RSeQC`
 
 ---
 
-## 9. Feature Counting (Read Quantification)
+## 10. Feature Counting (Read Quantification)
 
 Count the reads mapping to genes/features.  
 **Tools:** [`featureCounts`](http://bioinf.wehi.edu.au/featureCounts/), [`HTSeq-count`](https://htseq.readthedocs.io/en/master/)
 
 ---
 
-## 10. Downstream Analysis
+## 11. Downstream Analysis
 
-### 10.1 Data Import, Filtering, and Normalization
+### 11.1 Data Import, Filtering, and Normalization
 
 - Import feature count matrix into R (or Python)
 - Filter out lowly expressed genes
 - Normalize counts using methods like TMM (edgeR), DESeq2 normalization (size factors), or TPM/CPM where appropriate
 
-### 10.2 Exploratory Data Analysis (EDA)
+### 11.2 Exploratory Data Analysis (EDA)
 
 - Principal Component Analysis (PCA) to assess sample relationships
 - Hierarchical clustering and sample distance heatmaps
 - Visualization of library complexity and outliers
 
-### 10.3 Differential Gene Expression Analysis
+### 11.3 Differential Gene Expression Analysis
 
 - Use tools such as [`DESeq2`](https://bioconductor.org/packages/release/bioc/html/DESeq2.html), [`edgeR`](https://bioconductor.org/packages/release/bioc/html/edgeR.html), or [`limma-voom`](https://bioconductor.org/packages/release/bioc/html/limma.html)
 - Specify design matrix reflecting biological conditions
 - Estimate dispersion, fit models, run statistical tests
 - Generate lists of differentially expressed genes (DEGs)
 
-### 10.4 Visualization of Results
+### 11.4 Visualization of Results
 
 - MA plots, volcano plots
 - Heatmaps for top DEGs across samples
 - Gene expression plots (boxplots, barplots)
 
-### 10.5 Functional Enrichment Analysis
+### 11.5 Functional Enrichment Analysis
 
 - Gene Ontology (GO) enrichment (using `clusterProfiler`, `topGO`, `gProfiler`, etc.)
 - Pathway analysis (e.g., KEGG, Reactome)
 
-### 10.6 Advanced/Optional Analyses
+### 11.6 Advanced/Optional Analyses
 
 - Gene Set Enrichment Analysis (GSEA)
 - Splicing analysis (e.g., using rMATS, DEXSeq)

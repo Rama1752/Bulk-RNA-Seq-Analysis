@@ -74,7 +74,7 @@ fastqc FASTQ_files/*.fastq.gz -o QC_results/ --threads 8
 
 ```bash
 
-  
+```  
 **Tools:** [`Trimmomatic`](http://www.usadellab.org/cms/?page=trimmomatic), [`Cutadapt`](https://cutadapt.readthedocs.io/en/stable/), [`fastp`](https://github.com/OpenGene/fastp)
 
 ---

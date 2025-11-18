@@ -35,8 +35,16 @@ For each cell line we checked overexpression and normal behaviour of LCOR protei
 
 ---
 
-## 1. Downloading necessary tools
+## 1. Downloading necessary tools and make directories
+- Download all the necessary tools and make directories
 
+```bash
+
+conda install -y -c Bioconda -c conda-forge fastqc multiqc sra-tools hisat2 samtools trimmomatic subread qualimap rseqc bedops
+
+mkdir -p SRA_files FASTQ_files FASTQC_reports Multiqc_reports reference aligned_reads quants rnaseq_qc_results
+
+```
 ---
 
 ## 2. Fetching SRA Files
@@ -49,26 +57,21 @@ For each cell line we checked overexpression and normal behaviour of LCOR protei
 prefetch SRR32858437 SRR32858438 SRR32858439 SRR32858440
 
 #Covert SRA files to FASTQ files
-fastq-dump --outdir FASTQ_files --gzip --skip-technical-reads \
+fastq-dump --outdir FASTQ_files --gzip --skip-technical \
 --readids --read-filter pass --dumpbase --split-3 --clip \
 SRR32858437/SRR32858437.sra
 ```
-**Tools:** `sra-tools` (`prefetch`, `fastq-dump`)
-
 ---
 
 ## 3. FastQC - Quality Control
 - Check the quality of raw sequencing reads using FastQC.
 
 ```bash
-#Make a directory to save results
-mkdir -p QC_results
 
 #Run FASTQC
-fastqc FASTQ_files/*.fastq.gz -o QC_results/ --threads 8
-```
-**Tool:** [`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
+fastqc FASTQ_files/*.fastq.gz -o FASTQC_reports/ --threads 8
 
+```
 ---
 
 ## 4. Trimming Reads (optional)
@@ -76,17 +79,14 @@ fastqc FASTQ_files/*.fastq.gz -o QC_results/ --threads 8
 
 ```bash
 trimmomatic SE -threads 8 -phred33 \
-  QC_results/SRR32858437_pass_fastqc.zip \
-  FASTQ_files/MCF7_LCOR_OE_trimmed.fastq.gz \
+  FASTQ_files/SRR32858437.fastq.gz \
+  FASTQ_files/SRR32858437_trimmed.fastq.gz \
   TRAILING:10
 ```  
-**Tools:** [`Trimmomatic`](http://www.usadellab.org/cms/?page=trimmomatic), [`Cutadapt`](https://cutadapt.readthedocs.io/en/stable/), [`fastp`](https://github.com/OpenGene/fastp)
-
 ---
 
 ## 5. Post-trimming Quality Control
 - Re-run FastQC after trimming to ensure cleaning steps were effective.  
-**Tool:** [`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
 
 ---
 
@@ -114,32 +114,51 @@ gunzip Homo_sapiens.GRCh38.115.gtf.gz
  - Align reads with the Human Genome and convert the SAM file to BAM file.
 
 ```bash
+#Renaming the files:
+mv SRR32858437.fastq.gz > MDA_MB_231_LCOR_OE.fastq.gz
+mv SRR32858438.fastq.gz > MDA_MB_231_WT.fastq.gz
+mv SRR32858439.fastq.gz > MCF7_LCOR_OE.fastq.gz
+mv SRR32858439.fastq.gz > MCF7_WT.fastq.gz
 
-hisat2 -q -x grch38/genome -U fastq/SRR7179504_pass.fastq.gz | \
-  samtools sort -o alignedreads/LNCAP_Hypoxia_S1.bam
+#Aligning the fastq files with genome
+hisat2 -q -x reference/grch38/genome -U FASTQ_files/MDA_MB_231_LCOR_OE.fastq.gz | \
+  samtools sort -o aligned_reads/MDA_MB_231_LCOR_OE.bam
 ```
-**Tools:** [`HISAT2`](https://daehwankimlab.github.io/hisat2/), [`STAR`](https://github.com/alexdobin/STAR), `Bowtie2`
-
 ---
 
-## 8. SAM/BAM Processing (Sorting/Indexing)
+## 8. BAM index file
 
 Convert SAM to BAM; sort and index the alignments.  
-**Tools:** [`samtools`](http://www.htslib.org/)
 
+```bash
+
+samtools index alignedreads/MDA_MB_231_LCOR_OE.bam
+
+```
 ---
 
 ## 9. Assessing Alignment Quality
 
-Generate reports on mapping performance and quality.  
-**Tools:** `samtools flagstat`, `Qualimap`, `RSeQC`
+Generate reports on mapping performance and quality.
+
+```bash
+
+qualimap rnaseq -bam alignedreads/MDA_MB_231_LCOR_OE.bam -gtf reference/Homo_sapiens.GRCh38.115.gtf.gz  -outdir rnaseq_qc_results/MDA_MB_231_LCOR_OE --java-mem-size=10G
+ 
+```
 
 ---
 
 ## 10. Feature Counting (Read Quantification)
 
 Count the reads mapping to genes/features.  
-**Tools:** [`featureCounts`](http://bioinf.wehi.edu.au/featureCounts/), [`HTSeq-count`](https://htseq.readthedocs.io/en/master/)
+
+```bash
+
+featureCounts -S 2 -a reference/Homo_sapiens.GRCh38.115.gtf \
+  -o quants/featurecounts.txt alignedreads/*.bam
+
+```
 
 ---
 

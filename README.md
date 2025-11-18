@@ -32,6 +32,9 @@ For each cell line we checked overexpression and normal behaviour of LCOR protei
 ---
 
 ## Workflow
+
+---
+
 ## 1. Downloading necessary tools
 
 ---
@@ -43,7 +46,7 @@ For each cell line we checked overexpression and normal behaviour of LCOR protei
 
 ```bash
 #Download SRA files
-prefetch SRA SRR32858437
+prefetch SRR32858437 SRR32858438 SRR32858439 SRR32858440
 
 #Covert SRA files to FASTQ files
 fastq-dump --outdir FASTQ_files --gzip --skip-technical-reads --readids --read-filter pass --dumpbase --split-3 --clip SRR32858437/SRR32858437.sra
@@ -53,15 +56,25 @@ fastq-dump --outdir FASTQ_files --gzip --skip-technical-reads --readids --read-f
 ---
 
 ## 3. FastQC - Quality Control
+- Check the quality of raw sequencing reads using FastQC.
 
-Assess the quality of raw sequencing reads using FastQC.  
+```bash
+#Make a directory to save results
+mkdir -p QC_results
+
+#Run FASTQC
+fastqc FASTQ_files/*.fastq.gz -o QC_results/ --threads 8
+```
 **Tool:** [`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
 
 ---
 
-## 4. Trimming Reads
+## 4. Trimming Reads (optional)
+- Remove adapter contamination and poor-quality bases if present.
 
-Remove adapter contamination and poor-quality bases.  
+```bash
+
+  
 **Tools:** [`Trimmomatic`](http://www.usadellab.org/cms/?page=trimmomatic), [`Cutadapt`](https://cutadapt.readthedocs.io/en/stable/), [`fastp`](https://github.com/OpenGene/fastp)
 
 ---

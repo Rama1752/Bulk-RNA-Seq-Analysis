@@ -76,8 +76,8 @@ fastqc FASTQ_files/*.fastq.gz -o QC_results/ --threads 8
 
 ```bash
 trimmomatic SE -threads 8 -phred33 \
-  fastq/SRR7179504_pass.fastq.gz \
-  fastq/SRR7179504_trimmed.fastq.gz \
+  QC_results/SRR32858437_pass_fastqc.zip \
+  FASTQ_files/MCF7_LCOR_OE_trimmed.fastq.gz \
   TRAILING:10
 ```  
 **Tools:** [`Trimmomatic`](http://www.usadellab.org/cms/?page=trimmomatic), [`Cutadapt`](https://cutadapt.readthedocs.io/en/stable/), [`fastp`](https://github.com/OpenGene/fastp)
@@ -85,22 +85,39 @@ trimmomatic SE -threads 8 -phred33 \
 ---
 
 ## 5. Post-trimming Quality Control
-
-Re-run QC after trimming to ensure cleaning steps were effective.  
-**Tool:** `FastQC`
+- Re-run FastQC after trimming to ensure cleaning steps were effective.  
+**Tool:** [`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
 
 ---
 
 ## 6. Reference Genome Preparation (Indexing)
+- Download HISAT2 prebuilt GRCh38 genome index:
 
-Index the reference genome to allow quick alignment.  
-**Tools:** `HISAT2-build`, `STAR`, `Bowtie2-build`, etc.
+```bash
+
+wget https://genome-idx.s3.amazonaws.com/hisat/grch38_genome.tar.gz
+tar -xvzf grch38_genome.tar.gz
+
+```
+- Download Ensembl GTF annotation:
+
+```bash
+
+wget https://ftp.ensembl.org/pub/release-115/gtf/homo_sapiens/Homo_sapiens.GRCh38.115.gtf.gz
+gunzip Homo_sapiens.GRCh38.115.gtf.gz
+
+```
 
 ---
 
 ## 7. Alignment/Mapping
+ - Align reads with the Human Genome and convert the SAM file to BAM file.
 
-Map the reads to the reference genome/transcriptome.  
+```bash
+
+hisat2 -q -x grch38/genome -U fastq/SRR7179504_pass.fastq.gz | \
+  samtools sort -o alignedreads/LNCAP_Hypoxia_S1.bam
+```
 **Tools:** [`HISAT2`](https://daehwankimlab.github.io/hisat2/), [`STAR`](https://github.com/alexdobin/STAR), `Bowtie2`
 
 ---

@@ -49,7 +49,9 @@ For each cell line we checked overexpression and normal behaviour of LCOR protei
 prefetch SRR32858437 SRR32858438 SRR32858439 SRR32858440
 
 #Covert SRA files to FASTQ files
-fastq-dump --outdir FASTQ_files --gzip --skip-technical-reads --readids --read-filter pass --dumpbase --split-3 --clip SRR32858437/SRR32858437.sra
+fastq-dump --outdir FASTQ_files --gzip --skip-technical-reads \
+--readids --read-filter pass --dumpbase --split-3 --clip \
+SRR32858437/SRR32858437.sra
 ```
 **Tools:** `sra-tools` (`prefetch`, `fastq-dump`)
 
@@ -73,7 +75,10 @@ fastqc FASTQ_files/*.fastq.gz -o QC_results/ --threads 8
 - Remove adapter contamination and poor-quality bases if present.
 
 ```bash
-
+trimmomatic SE -threads 8 -phred33 \
+  fastq/SRR7179504_pass.fastq.gz \
+  fastq/SRR7179504_trimmed.fastq.gz \
+  TRAILING:10
 ```  
 **Tools:** [`Trimmomatic`](http://www.usadellab.org/cms/?page=trimmomatic), [`Cutadapt`](https://cutadapt.readthedocs.io/en/stable/), [`fastp`](https://github.com/OpenGene/fastp)
 

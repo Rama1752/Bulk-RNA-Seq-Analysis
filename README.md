@@ -115,10 +115,10 @@ gunzip Homo_sapiens.GRCh38.115.gtf.gz
 
 ```bash
 #Renaming the files:
-mv SRR32858437.fastq.gz > MDA_MB_231_LCOR_OE.fastq.gz
-mv SRR32858438.fastq.gz > MDA_MB_231_WT.fastq.gz
-mv SRR32858439.fastq.gz > MCF7_LCOR_OE.fastq.gz
-mv SRR32858439.fastq.gz > MCF7_WT.fastq.gz
+mv FASTQ_files/SRR32858437.fastq.gz FASTQ_files/MDA_MB_231_LCOR_OE.fastq.gz
+mv FASTQ_files/SRR32858438.fastq.gz > FASTQ_files/MDA_MB_231_WT.fastq.gz
+mv FASTQ_files/SRR32858439.fastq.gz > FASTQ_files/MCF7_LCOR_OE.fastq.gz
+mv FASTQ_files/SRR32858440.fastq.gz > FASTQ_files/MCF7_WT.fastq.gz
 
 #Aligning the fastq files with genome
 hisat2 -q -x reference/grch38/genome -U FASTQ_files/MDA_MB_231_LCOR_OE.fastq.gz | \
@@ -132,7 +132,7 @@ Convert SAM to BAM; sort and index the alignments.
 
 ```bash
 
-samtools index alignedreads/MDA_MB_231_LCOR_OE.bam
+samtools index aligned_reads/MDA_MB_231_LCOR_OE.bam
 
 ```
 ---
@@ -143,7 +143,9 @@ Generate reports on mapping performance and quality.
 
 ```bash
 
-qualimap rnaseq -bam alignedreads/MDA_MB_231_LCOR_OE.bam -gtf reference/Homo_sapiens.GRCh38.115.gtf.gz  -outdir rnaseq_qc_results/MDA_MB_231_LCOR_OE --java-mem-size=10G
+#QC Check
+qualimap rnaseq -bam aligned_reads/MDA_MB_231_LCOR_OE.bam -gtf reference/Homo_sapiens.GRCh38.115.gtf \
+ -outdir rnaseq_qc_results/MDA_MB_231_LCOR_OE --java-mem-size=10G
  
 ```
 
@@ -156,7 +158,7 @@ Count the reads mapping to genes/features.
 ```bash
 
 featureCounts -S 2 -a reference/Homo_sapiens.GRCh38.115.gtf \
-  -o quants/featurecounts.txt alignedreads/*.bam
+  -o quants/featurecounts.txt aligned_reads/*.bam
 
 ```
 

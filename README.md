@@ -27,8 +27,10 @@ For each cell line we checked overexpression and normal behaviour of LCOR protei
 - [8. Alignment/Mapping](#8-alignmentmapping)
 - [9. BAM index file](#9-bam-index-file)
 - [10. Assessing Alignment Quality](#10-assessing-alignment-quality)
-- [11. Feature Counting (Read Quantification)](#11-feature-counting-read-quantification)
-- [12. Downstream Analysis](#12-downstream-analysis)
+- [11. Convert GTF to BED](#11-convert-gtf-to-bed)
+- [12. Determine Library Strandedness](#12-determine-library-strandedness)
+- [13. Feature Counting (Read Quantification)](#13-feature-counting-read-quantification)
+- [14. Downstream Analysis](#14-downstream-analysis)
 
 ---
 
@@ -161,7 +163,29 @@ qualimap rnaseq -bam aligned_reads/MDA_MB_231_LCOR_OE.bam -gtf reference/Homo_sa
 
 ---
 
-## 11. Feature Counting (Read Quantification)
+## 11. Convert GTF to BED
+- Convert the Human genome gtf file to bed format which is required to check strandedness of RNA-Seq data using RSeQC.
+
+```bash
+
+gtf2bed < reference/Homo_sapiens.GRCh38.115.gtf > reference/Homo_sapiens.GRCh38.115.bed
+
+```
+---
+
+## 12. Determine Library Strandedness
+- RSeQC is used to check the strandedness of the RNA-Seq data.
+- Checking strandedness is necessary cause it assigns the reads to the correct gene, when genes overlap on opposite strands.
+
+```bash
+
+infer_experiment.py -i aligned_reads/MDA_MB_231_LCOR_OE.bam \
+  -r reference/Homo_sapiens.GRCh38.115.bed
+
+```
+
+---
+## 13. Feature Counting (Read Quantification)
 - Count the reads mapping to genes/features.  
 
 ```bash
@@ -173,39 +197,39 @@ featureCounts -S 2 -a reference/Homo_sapiens.GRCh38.115.gtf \
 
 ---
 
-## 12. Downstream Analysis
+## 14. Downstream Analysis
 
-### 12.1 Data Import, Filtering, and Normalization
+### 14.1 Data Import, Filtering, and Normalization
 
 - Import feature count matrix into R (or Python)
 - Filter out lowly expressed genes
 - Normalize counts using methods like TMM (edgeR), DESeq2 normalization (size factors), or TPM/CPM where appropriate
 
-### 12.2 Exploratory Data Analysis (EDA)
+### 14.2 Exploratory Data Analysis (EDA)
 
 - Principal Component Analysis (PCA) to assess sample relationships
 - Hierarchical clustering and sample distance heatmaps
 - Visualization of library complexity and outliers
 
-### 12.3 Differential Gene Expression Analysis
+### 14.3 Differential Gene Expression Analysis
 
 - Use tools such as [`DESeq2`](https://bioconductor.org/packages/release/bioc/html/DESeq2.html), [`edgeR`](https://bioconductor.org/packages/release/bioc/html/edgeR.html), or [`limma-voom`](https://bioconductor.org/packages/release/bioc/html/limma.html)
 - Specify design matrix reflecting biological conditions
 - Estimate dispersion, fit models, run statistical tests
 - Generate lists of differentially expressed genes (DEGs)
 
-### 12.4 Visualization of Results
+### 14.4 Visualization of Results
 
 - MA plots, volcano plots
 - Heatmaps for top DEGs across samples
 - Gene expression plots (boxplots, barplots)
 
-### 12.5 Functional Enrichment Analysis
+### 14.5 Functional Enrichment Analysis
 
 - Gene Ontology (GO) enrichment (using `clusterProfiler`, `topGO`, `gProfiler`, etc.)
 - Pathway analysis (e.g., KEGG, Reactome)
 
-### 12.6 Advanced/Optional Analyses
+### 14.6 Advanced/Optional Analyses
 
 - Gene Set Enrichment Analysis (GSEA)
 - Splicing analysis (e.g., using rMATS, DEXSeq)

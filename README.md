@@ -20,14 +20,15 @@ For each cell line we checked overexpression and normal behaviour of LCOR protei
 - [1. Downloading necessary tools](#1-downloading-necessary-tools)
 - [2. Fetching SRA Files](#2-fetching-sra-files)
 - [3. FastQC - Quality Control](#3-fastqc-quality-control)
-- [4. Trimming Reads](#4-trimming-reads)
-- [5. Post-trimming Quality Control](#5-post-trimming-quality-control)
-- [6. Reference Genome Preparation (Indexing)](#6-reference-genome-preparation-indexing)
-- [7. Alignment/Mapping](#7-alignment-mapping)
-- [8. SAM/BAM Processing (Sorting/Indexing)](#8-sam-bam-processing-sorting-indexing)
-- [9. Assessing Alignment Quality](#9-assessing-alignment-quality)
-- [10. Feature Counting (Read Quantification)](#10-feature-counting-read-quantification)
-- [11. Downstream Analysis](#11-downstream-analysis)
+- [4. MultiQC](#4-multiqc)
+- [5. Trimming Reads](#5-trimming-reads)
+- [6. Post-trimming Quality Control](#6-post-trimming-quality-control)
+- [7. Reference Genome Preparation (Indexing)](#7-reference-genome-preparation-indexing)
+- [8. Alignment/Mapping](#8-alignment-mapping)
+- [9. SAM/BAM Processing (Sorting/Indexing)](#9-sam-bam-processing-sorting-indexing)
+- [10. Assessing Alignment Quality](#10-assessing-alignment-quality)
+- [11. Feature Counting (Read Quantification)](#11-feature-counting-read-quantification)
+- [12. Downstream Analysis](#12-downstream-analysis)
 
 ---
 
@@ -74,7 +75,16 @@ fastqc FASTQ_files/*.fastq.gz -o FASTQC_reports/ --threads 8
 ```
 ---
 
-## 4. Trimming Reads (optional)
+## 4. MultiQC 
+- Merge all the fastqc reports to get a summarised report of it.
+
+```bash
+
+multiqc FASTQC_reports/ -o Multiqc_reports
+
+```
+
+## 5. Trimming Reads (optional)
 - Remove adapter contamination and poor-quality bases if present.
 
 ```bash
@@ -85,50 +95,51 @@ trimmomatic SE -threads 8 -phred33 \
 ```  
 ---
 
-## 5. Post-trimming Quality Control
-- Re-run FastQC after trimming to ensure cleaning steps were effective.  
+## 6. Post-trimming Quality Control
+- Re-run FastQC after trimming to ensure cleaning steps were effective.
+- Same as step-3
 
 ---
 
-## 6. Reference Genome Preparation (Indexing)
+## 7. Reference Genome Preparation (Indexing)
 - Download HISAT2 prebuilt GRCh38 genome index:
 
 ```bash
 
 wget https://genome-idx.s3.amazonaws.com/hisat/grch38_genome.tar.gz
-tar -xvzf grch38_genome.tar.gz
+tar -xvzf grch38_genome.tar.gz -C reference/
 
 ```
 - Download Ensembl GTF annotation:
 
 ```bash
 
-wget https://ftp.ensembl.org/pub/release-115/gtf/homo_sapiens/Homo_sapiens.GRCh38.115.gtf.gz
+wget -P reference/ https://ftp.ensembl.org/pub/release-115/gtf/homo_sapiens/Homo_sapiens.GRCh38.115.gtf.gz
 gunzip Homo_sapiens.GRCh38.115.gtf.gz
 
 ```
 
 ---
 
-## 7. Alignment/Mapping
+## 8. Alignment/Mapping
  - Align reads with the Human Genome and convert the SAM file to BAM file.
 
 ```bash
 #Renaming the files:
 mv FASTQ_files/SRR32858437.fastq.gz FASTQ_files/MDA_MB_231_LCOR_OE.fastq.gz
-mv FASTQ_files/SRR32858438.fastq.gz > FASTQ_files/MDA_MB_231_WT.fastq.gz
-mv FASTQ_files/SRR32858439.fastq.gz > FASTQ_files/MCF7_LCOR_OE.fastq.gz
-mv FASTQ_files/SRR32858440.fastq.gz > FASTQ_files/MCF7_WT.fastq.gz
+mv FASTQ_files/SRR32858438.fastq.gz FASTQ_files/MDA_MB_231_WT.fastq.gz
+mv FASTQ_files/SRR32858439.fastq.gz FASTQ_files/MCF7_LCOR_OE.fastq.gz
+mv FASTQ_files/SRR32858440.fastq.gz FASTQ_files/MCF7_WT.fastq.gz
 
 #Aligning the fastq files with genome
 hisat2 -q -x reference/grch38/genome -U FASTQ_files/MDA_MB_231_LCOR_OE.fastq.gz | \
   samtools sort -o aligned_reads/MDA_MB_231_LCOR_OE.bam
+
 ```
 ---
 
-## 8. BAM index file
-
-Convert SAM to BAM; sort and index the alignments.  
+## 9. BAM index file
+- Creates .bai index file for fast random access.
 
 ```bash
 
@@ -137,9 +148,8 @@ samtools index aligned_reads/MDA_MB_231_LCOR_OE.bam
 ```
 ---
 
-## 9. Assessing Alignment Quality
-
-Generate reports on mapping performance and quality.
+## 10. Assessing Alignment Quality
+- Generate reports on mapping performance and quality.
 
 ```bash
 
@@ -151,9 +161,8 @@ qualimap rnaseq -bam aligned_reads/MDA_MB_231_LCOR_OE.bam -gtf reference/Homo_sa
 
 ---
 
-## 10. Feature Counting (Read Quantification)
-
-Count the reads mapping to genes/features.  
+## 11. Feature Counting (Read Quantification)
+- Count the reads mapping to genes/features.  
 
 ```bash
 
@@ -164,39 +173,39 @@ featureCounts -S 2 -a reference/Homo_sapiens.GRCh38.115.gtf \
 
 ---
 
-## 11. Downstream Analysis
+## 12. Downstream Analysis
 
-### 11.1 Data Import, Filtering, and Normalization
+### 12.1 Data Import, Filtering, and Normalization
 
 - Import feature count matrix into R (or Python)
 - Filter out lowly expressed genes
 - Normalize counts using methods like TMM (edgeR), DESeq2 normalization (size factors), or TPM/CPM where appropriate
 
-### 11.2 Exploratory Data Analysis (EDA)
+### 12.2 Exploratory Data Analysis (EDA)
 
 - Principal Component Analysis (PCA) to assess sample relationships
 - Hierarchical clustering and sample distance heatmaps
 - Visualization of library complexity and outliers
 
-### 11.3 Differential Gene Expression Analysis
+### 12.3 Differential Gene Expression Analysis
 
 - Use tools such as [`DESeq2`](https://bioconductor.org/packages/release/bioc/html/DESeq2.html), [`edgeR`](https://bioconductor.org/packages/release/bioc/html/edgeR.html), or [`limma-voom`](https://bioconductor.org/packages/release/bioc/html/limma.html)
 - Specify design matrix reflecting biological conditions
 - Estimate dispersion, fit models, run statistical tests
 - Generate lists of differentially expressed genes (DEGs)
 
-### 11.4 Visualization of Results
+### 12.4 Visualization of Results
 
 - MA plots, volcano plots
 - Heatmaps for top DEGs across samples
 - Gene expression plots (boxplots, barplots)
 
-### 11.5 Functional Enrichment Analysis
+### 12.5 Functional Enrichment Analysis
 
 - Gene Ontology (GO) enrichment (using `clusterProfiler`, `topGO`, `gProfiler`, etc.)
 - Pathway analysis (e.g., KEGG, Reactome)
 
-### 11.6 Advanced/Optional Analyses
+### 12.6 Advanced/Optional Analyses
 
 - Gene Set Enrichment Analysis (GSEA)
 - Splicing analysis (e.g., using rMATS, DEXSeq)

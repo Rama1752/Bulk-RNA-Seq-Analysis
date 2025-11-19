@@ -17,15 +17,15 @@ For each cell line we checked overexpression and normal behaviour of LCOR protei
 
 ## Quick Navigation
 
-- [1. Downloading necessary tools](#1-downloading-necessary-tools)
+- [1. Downloading necessary tools and make directories](#1-downloading-necessary-tools-and-make-directories)
 - [2. Fetching SRA Files](#2-fetching-sra-files)
-- [3. FastQC - Quality Control](#3-fastqc-quality-control)
+- [3. FastQC - Quality Control](#3-fastqc---quality-control)
 - [4. MultiQC](#4-multiqc)
-- [5. Trimming Reads](#5-trimming-reads)
+- [5. Trimming Reads (optional)](#5-trimming-reads-optional)
 - [6. Post-trimming Quality Control](#6-post-trimming-quality-control)
 - [7. Reference Genome Preparation (Indexing)](#7-reference-genome-preparation-indexing)
-- [8. Alignment/Mapping](#8-alignment-mapping)
-- [9. SAM/BAM Processing (Sorting/Indexing)](#9-sam-bam-processing-sorting-indexing)
+- [8. Alignment/Mapping](#8-alignmentmapping)
+- [9. BAM index file](#9-bam-index-file)
 - [10. Assessing Alignment Quality](#10-assessing-alignment-quality)
 - [11. Feature Counting (Read Quantification)](#11-feature-counting-read-quantification)
 - [12. Downstream Analysis](#12-downstream-analysis)
@@ -41,7 +41,7 @@ For each cell line we checked overexpression and normal behaviour of LCOR protei
 
 ```bash
 
-conda install -y -c Bioconda -c conda-forge fastqc multiqc sra-tools hisat2 samtools trimmomatic subread qualimap rseqc bedops
+conda install -y -c bioconda -c conda-forge fastqc multiqc sra-tools hisat2 samtools trimmomatic subread qualimap rseqc bedops
 
 mkdir -p SRA_files FASTQ_files FASTQC_reports Multiqc_reports reference aligned_reads quants rnaseq_qc_results
 

@@ -104,7 +104,7 @@ trimmomatic SE -threads 8 -phred33 \
 ---
 
 ## 7. Reference Genome Preparation (Indexing)
-- Download HISAT2 prebuilt GRCh38 genome index:
+- Download HISAT2 prebuilt GRCh38 genome index and ensemble gtf annotation.
 
 ```bash
 
@@ -124,9 +124,11 @@ gunzip Homo_sapiens.GRCh38.115.gtf.gz
 ---
 
 ## 8. Alignment/Mapping
+ - Rename the files for better understanding.
  - Align reads with the Human Genome and convert the SAM file to BAM file.
 
 ```bash
+
 #Renaming the files:
 mv FASTQ_files/SRR32858437.fastq.gz FASTQ_files/MDA_MB_231_LCOR_OE.fastq.gz
 mv FASTQ_files/SRR32858438.fastq.gz FASTQ_files/MDA_MB_231_WT.fastq.gz

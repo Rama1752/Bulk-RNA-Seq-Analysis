@@ -57,7 +57,7 @@ mkdir -p SRA_files FASTQ_files FASTQC_reports Multiqc_reports reference aligned_
 
 ```bash
 #Download SRA files
-prefetch SRR32858437 SRR32858438 SRR32858439 SRR32858440
+prefetch SRR32858437 SRR32858438 SRR32858439 SRR32858440 --progress
 
 #Covert SRA files to FASTQ files
 fastq-dump --outdir FASTQ_files --gzip --skip-technical \

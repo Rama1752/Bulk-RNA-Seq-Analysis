@@ -166,7 +166,7 @@ qualimap rnaseq -bam aligned_reads/MDA_MB_231_LCOR_OE.bam -gtf reference/Homo_sa
 ---
 
 ## 11. Convert GTF to BED
-- Convert the Human genome gtf file to bed format which is required to check strandedness of RNA-Seq data using RSeQC.
+- Create a .bed file from Human .gtf file which is required to check strandedness of RNA-Seq data using RSeQC.
 
 ```bash
 

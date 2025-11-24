@@ -1,12 +1,15 @@
 # Bulk RNA-Seq Analysis
 
 🎯 Project Overview
-This project demonstrates a complete Bulk RNA-Seq workflow, from raw sequencing data up to differential expression analysis using DESeq2. We analyzed the effect of  **LCOR overexpression** and how it affects gene transcription in two cell lines that differ in nuclear receptor status: 
-- **MCF7 (NR-positive)** — nuclear receptor–positive
-- **MDA-MB-231 (NR-negative)** — nuclear receptor–negative  
-LCOR acts both as a transcriptional corepressor and activator, and this dataset enables comparison of its regulatory activity in nuclear receptor–dependent versus independent contexts.
+This project demonstrates a complete Bulk RNA-Seq workflow analyzing human airway smooth muscle (HASM) cell transcriptome responses to asthma medications. We characterized gene expression changes under three common asthma treatment conditions to understand how these drugs affect airway smooth muscle at the molecular level.
 
-For each cell line we checked overexpression and normal behaviour of LCOR protein
+The study examined the effects of:
+- **β2-agonist (Albuterol)** - bronchodilator that relaxes airway smooth muscle
+- **Glucocorticosteroid (Dexamethasone)** - anti-inflammatory steroid
+- **Combination therapy** - simultaneous treatment with both medications
+
+This dataset enables comparison of individual drug effects versus combination therapy, providing insights into the molecular mechanisms underlying asthma treatment in one of the primary target tissues.
+For each cell line we checked overexpression and normal behaviour of LCOR protein.
 
 📂 Dataset Information:
 - **GEO Accession:** GSE292767

@@ -64,7 +64,7 @@ This dataset enables comparison of individual drug effects versus combination th
 ---
 
 ## 1. Downloading necessary tools and make directories
-- Download all the necessary tools and make directories
+- Download all the necessary tools and make directories.
 
 ```bash
 
@@ -82,18 +82,20 @@ mkdir -p SRA_files FASTQ_files FASTQC_reports Multiqc_reports reference aligned_
 
 ```bash
 #Download SRA files
-prefetch SRR32858437 SRR32858438 SRR32858439 SRR32858440 --progress
+prefetch SRR1039508 SRR1039509 SRR1039510 SRR1039511 SRR1039512 SRR1039513 \
+SRR1039514 SRR1039515 SRR1039516 SRR1039517 SRR1039518 SRR1039519 SRR1039520 \
+SRR1039521 SRR1039522 SRR1039523 --progress
 
 #Covert SRA files to FASTQ files
 fastq-dump --outdir FASTQ_files --gzip --skip-technical \
 --readids --read-filter pass --dumpbase --split-3 --clip \
-SRR32858437/SRR32858437.sra
+SRR1039508/SRR1039508.sra
 ```
 ---
 
 ## 3. FastQC - Quality Control
 - Check the quality of raw sequencing reads using FastQC.
-
+- Add threads as per the number of CPU cores avialable.
 ```bash
 
 #Run FASTQC
@@ -111,20 +113,41 @@ multiqc FASTQC_reports/ -o Multiqc_reports
 
 ```
 
-## 5. Trimming Reads (optional)
+## 5. Trimming Reads
 - Remove adapter contamination and poor-quality bases if present.
+- Copy all the over-represented seq from fastqc reports for trimming.
+- -a seq is of R1 read and -A is of R2 read.
+- Add threads -j as per the number of CPU cores avialable.
 
 ```bash
-trimmomatic SE -threads 8 -phred33 \
-  FASTQ_files/SRR32858437.fastq.gz \
-  FASTQ_files/SRR32858437_trimmed.fastq.gz \
-  TRAILING:10
+
+cutadapt \
+  -j 8 \
+  -a ACACGTCTGAACTCCAGTCACCGATGTATCTCGTATGCCGTCTTCTGCTT \
+  -a ACACGTCTGAACTCCAGTCACTGACCAATCTCGTATGCCGTCTTCTGCTT \
+  -a ACACGTCTGAACTCCAGTCACACAGTGATCTCGTATGCCGTCTTCTGCTT \
+  -a CACACGTCTGAACTCCAGTCACAGTCAACAATCTCGTATGCCGTCTTCTG \
+  -A GTCGTGTAGGGAAAGAGTGTAGATCTCGGTGGTCGCCGTATCATTAAAAA \
+  -A GTCGTGTAGGGAAAGAGGGTAGATCTCGGTGGTCGCCGTATCATTAAAAA \
+  -A CGTCGTGTAGGGAAAGAGTGTAGATCTCGGTGGTCGCCGTATCATTAAAA \
+  --minimum-length 36 \
+  -o trimmed/SRR1039508_pass_1P.cutadapt.fastq.gz \
+  -p trimmed/SRR1039508_pass_2P.cutadapt.fastq.gz \
+  FASTQ_files/SRR1039508_pass_1.fastq.gz \
+  FASTQ_files/SRR1039508_pass_2.fastq.gz \
+  > trimmed/SRR1039508_cutadapt_report.txt 2>&1
+
 ```  
 ---
 
 ## 6. Post-trimming Quality Control
 - Re-run FastQC after trimming to ensure cleaning steps were effective.
-- Same as step-3
+
+```bash
+
+fastqc trimmed/* -o trimmed_qc_reports
+
+```
 
 ---
 
@@ -151,18 +174,20 @@ gunzip Homo_sapiens.GRCh38.115.gtf.gz
 ## 8. Alignment/Mapping
  - Rename the files for better understanding.
  - Align reads with the Human Genome and convert the SAM file to BAM file.
+ - Add threads -p or -@ as per the number of CPU cores avialable.
 
 ```bash
 
 #Renaming the files:
-mv FASTQ_files/SRR32858437.fastq.gz FASTQ_files/MDA_MB_231_LCOR_OE.fastq.gz
-mv FASTQ_files/SRR32858438.fastq.gz FASTQ_files/MDA_MB_231_WT.fastq.gz
-mv FASTQ_files/SRR32858439.fastq.gz FASTQ_files/MCF7_LCOR_OE.fastq.gz
-mv FASTQ_files/SRR32858440.fastq.gz FASTQ_files/MCF7_WT.fastq.gz
+mv trimmed/SRR1039508_pass_1P.cutadapt.fastq.gz trimmed/N61311_untreated_R1.fastq.gz
+mv trimmed/SRR1039508_pass_2P.cutadapt.fastq.gz trimmed/N61311_untreated_R2.fastq.gz
+mv trimmed/SRR1039509_pass_1P.cutadapt.fastq.gz trimmed/N61311_Dex_R1.fastq.gz
+mv trimmed/SRR1039509_pass_2P.cutadapt.fastq.gz trimmed/N61311_Dex_R2.fastq.gz
+.....
 
 #Aligning the fastq files with genome
-hisat2 -q -x reference/grch38/genome -U FASTQ_files/MDA_MB_231_LCOR_OE.fastq.gz | \
-  samtools sort -o aligned_reads/MDA_MB_231_LCOR_OE.bam
+hisat2 -p 6 -q -x reference/grch38/genome -1 trimmed/N61311_untreated_R1.fastq.gz -2 trimmed/N61311_untreated_R2.fastq.gz | \
+  samtools sort -@ 4 -o aligned_reads/N61311_untreated.bam
 
 ```
 ---
@@ -172,7 +197,7 @@ hisat2 -q -x reference/grch38/genome -U FASTQ_files/MDA_MB_231_LCOR_OE.fastq.gz 
 
 ```bash
 
-samtools index aligned_reads/MDA_MB_231_LCOR_OE.bam
+samtools index aligned_reads/N61311_untreated.bam
 
 ```
 ---

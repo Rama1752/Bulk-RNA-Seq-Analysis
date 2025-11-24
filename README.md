@@ -1,6 +1,7 @@
 # Bulk RNA-Seq Analysis
 
-🎯 Project Overview
+🎯 Project Overview:
+
 This project demonstrates a complete Bulk RNA-Seq workflow analyzing human airway smooth muscle (HASM) cell transcriptome responses to asthma medications. We characterized gene expression changes under three common asthma treatment conditions to understand how these drugs affect airway smooth muscle at the molecular level.
 
 The study examined the effects of:
@@ -9,14 +10,11 @@ The study examined the effects of:
 - **Combination therapy** - simultaneous treatment with both medications
 
 This dataset enables comparison of individual drug effects versus combination therapy, providing insights into the molecular mechanisms underlying asthma treatment in one of the primary target tissues.
-For each cell line we checked overexpression and normal behaviour of LCOR protein.
 
 📂 Dataset Information:
-- **GEO Accession:** GSE292767
+- **GEO Accession:** GSE52778
 - **Experiment Type:** Expression profiling by high-throughput sequencing
-- **Description:** RNA-Seq experiment in breast cancer cell lines to check the effect of LCOR overexpression in MCF7 and MDA-MB-231.
-
-
+- **Description:** RNA-Seq experiment in primary human airway smooth muscle cells to characterize transcriptome changes in response to asthma medications (albuterol, dexamethasone, and combination therapy).
 
 ## Quick Navigation
 

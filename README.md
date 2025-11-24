@@ -68,7 +68,7 @@ This dataset enables comparison of individual drug effects versus combination th
 
 ```bash
 
-conda install -y -c bioconda -c conda-forge fastqc multiqc sra-tools hisat2 samtools trimmomatic subread qualimap rseqc bedops
+conda install -y -c bioconda -c conda-forge fastqc multiqc sra-tools cutadapt samtools trimmomatic subread qualimap rseqc bedops
 
 mkdir -p SRA_files FASTQ_files FASTQC_reports Multiqc_reports reference aligned_reads quants rnaseq_qc_results
 

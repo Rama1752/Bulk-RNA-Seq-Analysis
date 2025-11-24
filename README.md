@@ -95,7 +95,7 @@ SRR1039508/SRR1039508.sra
 
 ## 3. FastQC - Quality Control
 - Check the quality of raw sequencing reads using FastQC.
-- Add threads as per the number of CPU cores avialable.
+- Add threads as per the number of CPU cores available.
 ```bash
 
 #Run FASTQC
@@ -117,7 +117,7 @@ multiqc FASTQC_reports/ -o Multiqc_reports
 - Remove adapter contamination and poor-quality bases if present.
 - Copy all the over-represented seq from fastqc reports for trimming.
 - -a seq is of R1 read and -A is of R2 read.
-- Add threads -j as per the number of CPU cores avialable.
+- Add threads -j as per the number of CPU cores available.
 
 ```bash
 
@@ -174,7 +174,7 @@ gunzip Homo_sapiens.GRCh38.115.gtf.gz
 ## 8. Alignment/Mapping
  - Rename the files for better understanding.
  - Align reads with the Human Genome and convert the SAM file to BAM file.
- - Add threads -p or -@ as per the number of CPU cores avialable.
+ - Add threads -p or -@ as per the number of CPU cores available.
 
 ```bash
 

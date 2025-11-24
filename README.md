@@ -36,6 +36,9 @@ This dataset enables comparison of individual drug effects versus combination th
 - **GEO Accession:** [GSE52778](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE52778)
 - **Experiment Type:** Expression profiling by high-throughput sequencing
 - **Description:** RNA-Seq experiment in primary human airway smooth muscle cells to characterize transcriptome changes in response to asthma medications (albuterol, dexamethasone, and combination therapy).
+- **Citations:**
+  1. Himes BE et al. (2014) RNA-Seq transcriptome profiling identifies CRISPLD2 as a glucocorticoid responsive gene that modulates cytokine function in airway smooth muscle cells. PLoS One 9(6):e99625. [PMID: 24926665]
+  2. Panganiban RAM et al. (2023) Antagonizing cholecystokinin A receptor in the lung attenuates obesity-induced airway hyperresponsiveness. Nat Commun 14(1):47. [PMID: 36599824]
 
 ## Quick Navigation
 

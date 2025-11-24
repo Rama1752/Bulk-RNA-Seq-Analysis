@@ -33,7 +33,7 @@ This dataset enables comparison of individual drug effects versus combination th
 | Sample 16 | N061011  | Dex + Alb           | SRR1039523    |
 
 📂 Dataset Information:
-- **GEO Accession:** GSE52778
+- **GEO Accession:** [GSE52778](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE52778)
 - **Experiment Type:** Expression profiling by high-throughput sequencing
 - **Description:** RNA-Seq experiment in primary human airway smooth muscle cells to characterize transcriptome changes in response to asthma medications (albuterol, dexamethasone, and combination therapy).
 

@@ -11,6 +11,27 @@ The study examined the effects of:
 
 This dataset enables comparison of individual drug effects versus combination therapy, providing insights into the molecular mechanisms underlying asthma treatment in one of the primary target tissues.
 
+## 🧪 Sample Information
+
+| Sample ID | Donor ID | Treatment Condition | SRA Accession |
+|-----------|----------|---------------------|---------------|
+| Sample 1  | N61311   | Untreated           | SRR1039508    |
+| Sample 2  | N61311   | Dexamethasone       | SRR1039509    |
+| Sample 3  | N61311   | Albuterol           | SRR1039510    |
+| Sample 4  | N61311   | Dex + Alb           | SRR1039511    |
+| Sample 5  | N052611  | Untreated           | SRR1039512    |
+| Sample 6  | N052611  | Dexamethasone       | SRR1039513    |
+| Sample 7  | N052611  | Albuterol           | SRR1039514    |
+| Sample 8  | N052611  | Dex + Alb           | SRR1039515    |
+| Sample 9  | N080611  | Untreated           | SRR1039516    |
+| Sample 10 | N080611  | Dexamethasone       | SRR1039517    |
+| Sample 11 | N080611  | Albuterol           | SRR1039518    |
+| Sample 12 | N080611  | Dex + Alb           | SRR1039519    |
+| Sample 13 | N061011  | Untreated           | SRR1039520    |
+| Sample 14 | N061011  | Dexamethasone       | SRR1039521    |
+| Sample 15 | N061011  | Albuterol           | SRR1039522    |
+| Sample 16 | N061011  | Dex + Alb           | SRR1039523    |
+
 📂 Dataset Information:
 - **GEO Accession:** GSE52778
 - **Experiment Type:** Expression profiling by high-throughput sequencing

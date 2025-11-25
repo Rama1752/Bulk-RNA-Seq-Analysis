@@ -197,7 +197,7 @@ hisat2 -p 6 -q -x reference/grch38/genome -1 trimmed/N61311_untreated_R1.fastq.g
 
 ```bash
 
-samtools index -M aligned_reads/*.bam
+samtools index -@ 8 -M aligned_reads/*.bam
 
 ```
 ---

@@ -156,16 +156,16 @@ fastqc trimmed/* -o trimmed_qc_reports
 
 ```bash
 
-wget https://genome-idx.s3.amazonaws.com/hisat/grch38_genome.tar.gz
-tar -xvzf grch38_genome.tar.gz -C reference/
+wget https://genome-idx.s3.amazonaws.com/hisat/grch37_genome.tar.gz
+tar -xvzf grch37_genome.tar.gz -C reference/
 
 ```
 - Download Ensembl GTF annotation:
 
 ```bash
 
-wget -P reference/ https://ftp.ensembl.org/pub/release-115/gtf/homo_sapiens/Homo_sapiens.GRCh38.115.gtf.gz
-gunzip Homo_sapiens.GRCh38.115.gtf.gz
+wget -P reference/ https://ftp.ensembl.org/pub/grch37/current/gtf/homo_sapiens/Homo_sapiens.GRCh37.87.gtf.gz
+gunzip Homo_sapiens.GRCh37.87.gtf.gz
 
 ```
 

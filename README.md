@@ -152,7 +152,7 @@ fastqc trimmed/* -o trimmed_qc_reports
 ---
 
 ## 7. Reference Genome Preparation (Indexing)
-- Download HISAT2 prebuilt GRCh38 genome index and ensemble gtf annotation.
+- Download HISAT2 prebuilt GRCh37 genome index and ensemble gtf annotation.
 
 ```bash
 
@@ -186,7 +186,7 @@ mv trimmed/SRR1039509_pass_2P.cutadapt.fastq.gz trimmed/N61311_Dex_R2.fastq.gz
 .....
 
 #Aligning the fastq files with genome
-hisat2 -p 6 -q -x reference/grch38/genome -1 trimmed/N61311_untreated_R1.fastq.gz -2 trimmed/N61311_untreated_R2.fastq.gz | \
+hisat2 -p 6 -q -x reference/grch37/genome -1 trimmed/N61311_untreated_R1.fastq.gz -2 trimmed/N61311_untreated_R2.fastq.gz | \
   samtools sort -@ 4 -o aligned_reads/N61311_untreated.bam
 
 ```

@@ -16,13 +16,13 @@ This dataset helps us compare how cyproheptadine works in healthy cells versus i
 | Sample ID      | Treatment Condition | SRA Accession                         |
 |----------------|---------------------|---------------------------------------|
 | Sample 1 - 5   | Cyp + IL-1β         | SRR32684363, SRR32684364, SRR32684365,|
-|                |                     | SRR32684366, SRR32684367              |
+|                                        SRR32684366, SRR32684367              |
 | Sample 6 - 10  | IL-1β               | SRR32684368, SRR32684369, SRR32684370,|
-|                |                     | SRR32684371, SRR32684372              |
+|                                        SRR32684371, SRR32684372              |
 | Sample 11 - 15 | Cyproheptadine      | SRR32684373, SRR32684374, SRR32684375,|
-|                |                     | SRR32684376, SRR32684377              |
+|                                        SRR32684376, SRR32684377              |
 | Sample 16 - 20 | DMSO (Control)      | SRR32684378, SRR32684379, SRR32684380,|
-|                |                     | SRR32684381, SRR32684382              |
+|                                        SRR32684381, SRR32684382              |
 
 📂 Dataset Information:
 - **GEO Accession:** [GSE291878](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE291878)

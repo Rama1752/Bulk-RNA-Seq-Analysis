@@ -2,43 +2,34 @@
 
 🎯 Project Overview:
 
-This project demonstrates a complete Bulk RNA-Seq workflow analyzing human airway smooth muscle (HASM) cell transcriptome responses to asthma medications. We characterized gene expression changes under three common asthma treatment conditions to understand how these drugs affect airway smooth muscle at the molecular level.
+This project demonstrates a complete Bulk RNA-Seq workflow analyzing how human cartilage cells (chondrocytes) respond to cyproheptadine, a drug that shows promise for treating osteoarthritis. We studied gene expression changes to understand how this drug affects cartilage cells at the molecular level.
 
 The study examined the effects of:
-- **β2-agonist (Albuterol)** - bronchodilator that relaxes airway smooth muscle
-- **Glucocorticosteroid (Dexamethasone)** - anti-inflammatory steroid
-- **Combination therapy** - simultaneous treatment with both medications
+- **Cyproheptadine** - a drug candidate that may help protect cartilage and slow down osteoarthritis
+- **IL-1β** - an inflammatory molecule that damages cartilage (mimics what happens in osteoarthritis)
+- **Combination treatment** - cyproheptadine given together with IL-1β to see if the drug can protect cells from inflammation
 
-This dataset enables comparison of individual drug effects versus combination therapy, providing insights into the molecular mechanisms underlying asthma treatment in one of the primary target tissues.
+This dataset helps us compare how cyproheptadine works in healthy cells versus inflamed cells, giving us insights into how it might treat osteoarthritis by protecting the cartilage in our joints.
 
 ## 🧪 Sample Information
 
-| Sample ID | Donor ID | Treatment Condition | SRA Accession |
-|-----------|----------|---------------------|---------------|
-| Sample 1  | N61311   | Untreated           | SRR1039508    |
-| Sample 2  | N61311   | Dexamethasone       | SRR1039509    |
-| Sample 3  | N61311   | Albuterol           | SRR1039510    |
-| Sample 4  | N61311   | Dex + Alb           | SRR1039511    |
-| Sample 5  | N052611  | Untreated           | SRR1039512    |
-| Sample 6  | N052611  | Dexamethasone       | SRR1039513    |
-| Sample 7  | N052611  | Albuterol           | SRR1039514    |
-| Sample 8  | N052611  | Dex + Alb           | SRR1039515    |
-| Sample 9  | N080611  | Untreated           | SRR1039516    |
-| Sample 10 | N080611  | Dexamethasone       | SRR1039517    |
-| Sample 11 | N080611  | Albuterol           | SRR1039518    |
-| Sample 12 | N080611  | Dex + Alb           | SRR1039519    |
-| Sample 13 | N061011  | Untreated           | SRR1039520    |
-| Sample 14 | N061011  | Dexamethasone       | SRR1039521    |
-| Sample 15 | N061011  | Albuterol           | SRR1039522    |
-| Sample 16 | N061011  | Dex + Alb           | SRR1039523    |
+| Sample ID      | Treatment Condition | SRA Accession                         |
+|----------------|---------------------|---------------------------------------|
+| Sample 1 - 5   | Cyp + IL-1β         | SRR32684363, SRR32684364, SRR32684365,|
+|                |                     | SRR32684366, SRR32684367              |
+| Sample 6 - 10  | IL-1β               | SRR32684368, SRR32684369, SRR32684370,|
+|                |                     | SRR32684371, SRR32684372              |
+| Sample 11 - 15 | Cyproheptadine      | SRR32684373, SRR32684374, SRR32684375,|
+|                |                     | SRR32684376, SRR32684377              |
+| Sample 16 - 20 | DMSO (Control)      | SRR32684378, SRR32684379, SRR32684380,|
+|                |                     | SRR32684381, SRR32684382              |
 
 📂 Dataset Information:
-- **GEO Accession:** [GSE52778](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE52778)
+- **GEO Accession:** [GSE291878](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE291878)
 - **Experiment Type:** Expression profiling by high-throughput sequencing
-- **Description:** RNA-Seq experiment in primary human airway smooth muscle cells to characterize transcriptome changes in response to asthma medications (albuterol, dexamethasone, and combination therapy).
+- **Description:** RNA-Seq experiment in human cartilage cells to see how cyproheptadine changes gene activity in normal conditions and during inflammation. Osteoarthritis is a common joint disease with no cure, and this study helps identify cyproheptadine as a potential treatment option.
 - **Citations:**
-  1. Himes BE et al. (2014) RNA-Seq transcriptome profiling identifies CRISPLD2 as a glucocorticoid responsive gene that modulates cytokine function in airway smooth muscle cells. PLoS One 9(6):e99625. [PMID: 24926665]
-  2. Panganiban RAM et al. (2023) Antagonizing cholecystokinin A receptor in the lung attenuates obesity-induced airway hyperresponsiveness. Nat Commun 14(1):47. [PMID: 36599824]
+  1. Kurakazu I, Olmer M, Swahn H, Myers K et al. (2025) Histamine H1 receptor inverse agonists improve structure and pain in an osteoarthritis mouse model. J Clin Invest 135(21). [PMID: 40875519]
 
 ## Quick Navigation
 

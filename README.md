@@ -69,14 +69,16 @@ mkdir -p SRA_files FASTQ_files FASTQC_reports Multiqc_reports reference aligned_
 
 ```bash
 #Download SRA files
-prefetch SRR1039508 SRR1039509 SRR1039510 SRR1039511 SRR1039512 SRR1039513 \
-SRR1039514 SRR1039515 SRR1039516 SRR1039517 SRR1039518 SRR1039519 SRR1039520 \
-SRR1039521 SRR1039522 SRR1039523 --progress
+prefetch SRR32684363 SRR32684364 SRR32684365 SRR32684366
+SRR32684367 SRR32684368 SRR32684369 SRR32684370 SRR32684371
+SRR32684372 SRR32684373 SRR32684374 SRR32684375 SRR32684376
+SRR32684377 SRR32684378 SRR32684379 SRR32684380 SRR32684381
+SRR32684382 --progress
 
 #Covert SRA files to FASTQ files
 fastq-dump --outdir FASTQ_files --gzip --skip-technical \
 --readids --read-filter pass --dumpbase --split-3 --clip \
-SRR1039508/SRR1039508.sra
+SRR32684363/SRR32684363.sra
 ```
 ---
 
@@ -139,20 +141,20 @@ fastqc trimmed/* -o trimmed_qc_reports
 ---
 
 ## 7. Reference Genome Preparation (Indexing)
-- Download HISAT2 prebuilt GRCh37 genome index and ensemble gtf annotation.
+- Download HISAT2 prebuilt GRCh38 genome index and ensemble gtf annotation.
 
 ```bash
 
-wget https://genome-idx.s3.amazonaws.com/hisat/grch37_genome.tar.gz
-tar -xvzf grch37_genome.tar.gz -C reference/
+wget https://genome-idx.s3.amazonaws.com/hisat/grch38_genome.tar.gz
+tar -xvzf grch38_genome.tar.gz -C reference/
 
 ```
 - Download Ensembl GTF annotation:
 
 ```bash
 
-wget -P reference/ https://ftp.ensembl.org/pub/grch37/current/gtf/homo_sapiens/Homo_sapiens.GRCh37.87.gtf.gz
-gunzip Homo_sapiens.GRCh37.87.gtf.gz
+wget -P reference/ https://ftp.ensembl.org/pub/grch37/current/gtf/homo_sapiens/Homo_sapiens.GRCh38.115.gtf.gz
+gunzip Homo_sapiens.GRCh38.115.gtf.gz
 
 ```
 

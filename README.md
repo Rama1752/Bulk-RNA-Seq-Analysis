@@ -80,7 +80,8 @@ fastq-dump --outdir FASTQ_files --gzip --skip-technical \
 --readids --read-filter pass --dumpbase --split-3 --clip \
 SRR32684363/SRR32684363.sra
 ```
-Output: FastQ files
+Output: Fastq files
+
 <img width="1920" height="193" alt="Screenshot (86)" src="https://github.com/user-attachments/assets/60efb587-11c1-451c-9078-33b3acc6dd88" />
 
 ---
@@ -94,6 +95,9 @@ Output: FastQ files
 fastqc FASTQ_files/*.fastq.gz -o FASTQC_reports/ --threads 8
 
 ```
+Output: FastQC Reports
+<img width="1920" height="285" alt="Screenshot (85)" src="https://github.com/user-attachments/assets/265a555d-b2ae-48de-bd51-495fe8fc038b" />
+
 ---
 
 ## 4. MultiQC 
@@ -174,7 +178,7 @@ hisat2 -p 6 -q -x reference/grch37/genome -1 trimmed/N61311_untreated_R1.fastq.g
 samtools index -@ 8 -M aligned_reads/*.bam
 
 ```
-Output: Aligned, Sorted and Indexed BAm files
+Output: Aligned, Sorted and Indexed BAM files
 
 <img width="1920" height="279" alt="Screenshot (87)" src="https://github.com/user-attachments/assets/70678b9b-f9ee-4ac7-a073-f889e48b2e0b" />
 ---

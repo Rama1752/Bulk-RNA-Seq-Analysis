@@ -102,41 +102,22 @@ multiqc FASTQC_reports/ -o Multiqc_reports
 
 ```
 
-## 5. Trimming Reads
+## 5. Trimming Reads (optional)
 - Remove adapter contamination and poor-quality bases if present.
-- Copy all the over-represented seq from fastqc reports for trimming.
-- -a seq is of R1 read and -A is of R2 read.
-- Add threads -j as per the number of CPU cores available.
 
 ```bash
 
-cutadapt \
-  -j 8 \
-  -a ACACGTCTGAACTCCAGTCACCGATGTATCTCGTATGCCGTCTTCTGCTT \
-  -a ACACGTCTGAACTCCAGTCACTGACCAATCTCGTATGCCGTCTTCTGCTT \
-  -a ACACGTCTGAACTCCAGTCACACAGTGATCTCGTATGCCGTCTTCTGCTT \
-  -a CACACGTCTGAACTCCAGTCACAGTCAACAATCTCGTATGCCGTCTTCTG \
-  -A GTCGTGTAGGGAAAGAGTGTAGATCTCGGTGGTCGCCGTATCATTAAAAA \
-  -A GTCGTGTAGGGAAAGAGGGTAGATCTCGGTGGTCGCCGTATCATTAAAAA \
-  -A CGTCGTGTAGGGAAAGAGTGTAGATCTCGGTGGTCGCCGTATCATTAAAA \
-  --minimum-length 36 \
-  -o trimmed/SRR1039508_pass_1P.cutadapt.fastq.gz \
-  -p trimmed/SRR1039508_pass_2P.cutadapt.fastq.gz \
-  FASTQ_files/SRR1039508_pass_1.fastq.gz \
-  FASTQ_files/SRR1039508_pass_2.fastq.gz \
-  > trimmed/SRR1039508_cutadapt_report.txt 2>&1
+trimmomatic SE -threads 8 -phred33 \
+  FASTQ_files/SRR32684363.fastq.gz \
+  FASTQ_files/SRR32684363_trimmed.fastq.gz \
+  TRAILING:10
 
 ```  
 ---
 
 ## 6. Post-trimming Quality Control
 - Re-run FastQC after trimming to ensure cleaning steps were effective.
-
-```bash
-
-fastqc trimmed/* -o trimmed_qc_reports
-
-```
+- Same as step-3
 
 ---
 
@@ -153,8 +134,8 @@ tar -xvzf grch38_genome.tar.gz -C reference/
 
 ```bash
 
-wget -P reference/ https://ftp.ensembl.org/pub/grch37/current/gtf/homo_sapiens/Homo_sapiens.GRCh38.115.gtf.gz
-gunzip Homo_sapiens.GRCh38.115.gtf.gz
+wget -P reference/ https://ftp.ensembl.org/pub/release-115/gtf/homo_sapiens/Homo_sapiens.GRCh38.115.gtf.gz
+gunzip reference/Homo_sapiens.GRCh38.115.gtf.gz 
 
 ```
 

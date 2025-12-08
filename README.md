@@ -81,6 +81,7 @@ fastq-dump --outdir FASTQ_files --gzip --skip-technical \
 SRR32684363/SRR32684363.sra
 ```
 Output: Fastq files
+
 <img width="1920" height="188" alt="Screenshot (84)" src="https://github.com/user-attachments/assets/92c3ff19-375c-4824-9b08-d61d7104ce97" />
 
 ---
@@ -95,6 +96,7 @@ fastqc FASTQ_files/*.fastq.gz -o FASTQC_reports/ --threads 8
 
 ```
 Output: FastQC Reports
+
 <img width="1920" height="285" alt="Screenshot (85)" src="https://github.com/user-attachments/assets/265a555d-b2ae-48de-bd51-495fe8fc038b" />
 
 ---
@@ -108,6 +110,7 @@ multiqc FASTQC_reports/ -o Multiqc_reports
 
 ```
 Output: Multiqc Report
+
 <img width="802" height="144" alt="Screenshot (88)" src="https://github.com/user-attachments/assets/f22a844a-4b2b-49bc-a8ea-b81bcb40c592" />
 ---
 
@@ -180,6 +183,7 @@ samtools index -@ 8 -M aligned_reads/*.bam
 
 ```
 Output: Aligned, Sorted and Indexed BAM files
+
 <img width="1920" height="279" alt="Screenshot (87)" src="https://github.com/user-attachments/assets/70678b9b-f9ee-4ac7-a073-f889e48b2e0b" />
 ---
 

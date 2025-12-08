@@ -160,6 +160,8 @@ hisat2 -p 6 -q -x reference/grch37/genome -1 trimmed/N61311_untreated_R1.fastq.g
   samtools sort -@ 4 -o aligned_reads/N61311_untreated.bam
 
 ```
+<img width="1920" height="279" alt="Screenshot (87)" src="https://github.com/user-attachments/assets/70678b9b-f9ee-4ac7-a073-f889e48b2e0b" />
+
 ---
 
 ## 9. BAM index file

@@ -80,6 +80,9 @@ fastq-dump --outdir FASTQ_files --gzip --skip-technical \
 --readids --read-filter pass --dumpbase --split-3 --clip \
 SRR32684363/SRR32684363.sra
 ```
+Output: FastQ files
+<img width="1920" height="193" alt="Screenshot (86)" src="https://github.com/user-attachments/assets/60efb587-11c1-451c-9078-33b3acc6dd88" />
+
 ---
 
 ## 3. FastQC - Quality Control

@@ -107,6 +107,9 @@ Output: FastQC Reports
 multiqc FASTQC_reports/ -o Multiqc_reports
 
 ```
+Output: Multiqc Report
+<img width="802" height="144" alt="Screenshot (88)" src="https://github.com/user-attachments/assets/f22a844a-4b2b-49bc-a8ea-b81bcb40c592" />
+---
 
 ## 5. Trimming Reads (optional)
 - Remove adapter contamination and poor-quality bases if present.
@@ -155,15 +158,14 @@ gunzip reference/Homo_sapiens.GRCh38.115.gtf.gz
 ```bash
 
 #Renaming the files:
-mv trimmed/SRR1039508_pass_1P.cutadapt.fastq.gz trimmed/N61311_untreated_R1.fastq.gz
-mv trimmed/SRR1039508_pass_2P.cutadapt.fastq.gz trimmed/N61311_untreated_R2.fastq.gz
-mv trimmed/SRR1039509_pass_1P.cutadapt.fastq.gz trimmed/N61311_Dex_R1.fastq.gz
-mv trimmed/SRR1039509_pass_2P.cutadapt.fastq.gz trimmed/N61311_Dex_R2.fastq.gz
+mv FASTQ_files/SRR32684363.fastq.gz FASTQ_files/Cyp_IL1b_rep1.fastq.gz
+mv FASTQ_files/SRR32684364.fastq.gz FASTQ_files/Cyp_IL1b_rep2.fastq.gz
+mv FASTQ_files/SRR32684365.fastq.gz FASTQ_files/Cyp_IL1b_rep3.fastq.gz
+mv FASTQ_files/SRR32684366.fastq.gz FASTQ_files/Cyp_IL1b_rep4.fastq.gz
 .....
 
 #Aligning the fastq files with genome
-hisat2 -p 6 -q -x reference/grch37/genome -1 trimmed/N61311_untreated_R1.fastq.gz -2 trimmed/N61311_untreated_R2.fastq.gz | \
-  samtools sort -@ 4 -o aligned_reads/N61311_untreated.bam
+hisat2 -p 6 -q -x reference/grch38/genome -U FASTQ_files/Cyp_IL1b_rep1.fastq.gz | samtools sort -@ 4 -o aligned_reads/Cyp_IL1b_rep1.bam
 
 ```
 
@@ -178,7 +180,6 @@ samtools index -@ 8 -M aligned_reads/*.bam
 
 ```
 Output: Aligned, Sorted and Indexed BAM files
-
 <img width="1920" height="279" alt="Screenshot (87)" src="https://github.com/user-attachments/assets/70678b9b-f9ee-4ac7-a073-f889e48b2e0b" />
 ---
 

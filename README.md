@@ -171,7 +171,7 @@ hisat2 -p 6 -q -x reference/grch37/genome -1 trimmed/N61311_untreated_R1.fastq.g
 samtools index -@ 8 -M aligned_reads/*.bam
 
 ```
-Output of Aligned reads and BAM indexed files
+Output: Aligned, Sorted and Indexed BAm files
 
 <img width="1920" height="279" alt="Screenshot (87)" src="https://github.com/user-attachments/assets/70678b9b-f9ee-4ac7-a073-f889e48b2e0b" />
 ---

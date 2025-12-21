@@ -2,7 +2,7 @@
 
 🎯 Project Overview:
 
-This project demonstrates a complete Bulk RNA-Seq workflow analyzing how human cartilage cells (chondrocytes) respond to cyproheptadine, a drug that shows promise for treating osteoarthritis. We studied gene expression changes to understand how this drug affects cartilage cells at the molecular level.
+This repository demonstrates a complete bulk RNA-Seq workflow analyzing how human cartilage cells (chondrocytes) respond to cyproheptadine, a drug that shows promise for treating osteoarthritis. The analysis compares gene expression under four conditions (drug, inflammatory stimulus, combined treatment, and control) to identify drug effects, inflammatory responses, and any protective/reversal actions of cyproheptadine in inflamed chondrocytes.
 
 The study examined the effects of:
 - **Cyproheptadine** - a drug candidate that may help protect cartilage and slow down osteoarthritis
@@ -42,11 +42,21 @@ This dataset helps us compare how cyproheptadine works in healthy cells versus i
 - [11. Convert GTF to BED](#11-convert-gtf-to-bed)
 - [12. Determine Library Strandedness](#12-determine-library-strandedness)
 - [13. Feature Counting (Read Quantification)](#13-feature-counting-read-quantification)
-- [14. Downstream Analysis](#14-downstream-analysis)
+- [14. Downstream analysis (R / Bioconductor)](#14-downstream-analysis-r--bioconductor)
+  - [14.1 Setup and data import](#141-setup-and-data-import)
+  - [14.2 Experimental design and DESeq2 setup](#142-experimental-design-and-deseq2-setup)
+  - [14.3 Differential gene expression analysis](#143-differential-gene-expression-analysis)
+  - [14.4 Quality control and exploratory analysis](#144-quality-control-and-exploratory-analysis)
+  - [14.5 Visualization of differential expression results](#145-visualization-of-differential-expression-results)
+  - [14.6 Gene set enrichment analysis (GSEA)](#146-gene-set-enrichment-analysis-gsea)
+  - [14.7 Key outputs generated](#147-key-outputs-generated)
+  - [14.8 Biological interpretation](#148-biological-interpretation)
 
 ---
 
 ## Workflow
+
+This section documents the practical steps used to process raw SRA data through alignment, quantification, differential expression, and pathway analysis. Commands show example usage and can be adapted (threads, file names) to your compute environment.
 
 ---
 
@@ -234,7 +244,7 @@ featureCounts -S 2 -a reference/Homo_sapiens.GRCh38.115.gtf \
 
 ---
 
-## 14. Downstream Analysis
+## 14. Downstream analysis (R / Bioconductor)
 
 This comprehensive analysis was performed using R with DESeq2 and related Bioconductor packages. The workflow includes differential expression analysis, quality control visualizations, and functional enrichment analysis.
 
@@ -904,55 +914,20 @@ waterfall_plot(fgsea_Cyp,
 ```
 
 ### 14.7 Key Outputs Generated
-### CSV Files:
-- IL1b_vs_Control_all_genes.csv - Complete results with statistics
-- IL1b_vs_Control_sig_genes.csv - Filtered significant genes (padj < 0.05, |log2FC| > 1)
-- IL1b_vs_Control_top40_genes.csv - Top 40 differentially expressed genes
-    - IL1b_vs_Control_rank.rnk - Ranked gene list for GSEA
-    - Corresponding files for Cyp_IL1b_vs_IL1b comparison
+CSV files and plots produced by the workflow (examples):
 
-Visualizations:
+- IL1b_vs_Control_all_genes.csv
+- IL1b_vs_Control_sig_genes.csv
+- IL1b_vs_Control_top40_genes.csv
+- IL1b_vs_Control_rank.rnk
+- Corresponding files for Cyp_IL1b_vs_IL1b
+- PCA plot, sample distance heatmap, variable gene heatmap, volcano plots, log2FC comparison scatter plot, DE gene heatmaps, GSEA enrichment plots, waterfall plots.
 
-PCA plot
-Sample distance heatmap
-Variable gene heatmap (top 40 genes)
-Volcano plots (2)
-Log2FC comparison scatter plot
-DE gene heatmaps (2)
-GSEA enrichment plots (2)
-Waterfall plots (2)
+### 14.8 Biological Interpretation
 
-14.8 Biological Interpretation
-IL-1β Effects:
-
-Identifies inflammatory response signature in chondrocytes
-Reveals genes and pathways activated by cytokine stimulation
-Establishes baseline inflammatory gene expression changes
-Mimics the molecular environment in osteoarthritic cartilage
-
-Cyproheptadine Effects:
-
-Shows how the drug modulates gene expression under inflammatory conditions
-Identifies potential therapeutic mechanisms of action
-Reveals pathways where cyproheptadine counteracts or enhances IL-1β signaling
-Demonstrates gene expression reversal patterns
-
-Clinical Relevance:
-
-This analysis helps understand cyproheptadine's potential as an osteoarthritis therapeutic
-Identifies molecular mechanisms of cartilage protection
-Provides candidate genes and pathways for further validation
-Supports the development of targeted therapies for joint diseases
-
-
-
-
-
-
-
-
-
-
+- IL-1β effects: activates inflammatory response programs and identifies genes associated with cartilage degradation and inflammation.
+- Cyproheptadine effects: reveals how Cyp modulates gene expression in inflamed cells and identifies potential pathways where it may counteract IL-1β effects.
+- Clinical relevance: provides candidate genes and pathways for follow-up validation to explore cyproheptadine as a potential therapeutic strategy in osteoarthritis.
     
 ---
 

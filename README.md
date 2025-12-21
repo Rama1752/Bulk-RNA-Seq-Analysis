@@ -236,44 +236,724 @@ featureCounts -S 2 -a reference/Homo_sapiens.GRCh38.115.gtf \
 
 ## 14. Downstream Analysis
 
-### 14.1 Data Import, Filtering, and Normalization
+This comprehensive analysis was performed using R with DESeq2 and related Bioconductor packages. The workflow includes differential expression analysis, quality control visualizations, and functional enrichment analysis.
 
-- Import feature count matrix into R (or Python)
-- Filter out lowly expressed genes
-- Normalize counts using methods like TMM (edgeR), DESeq2 normalization (size factors), or TPM/CPM where appropriate
+### 14.1  Setup and Data Import
+### Package Installation and Loading
 
-### 14.2 Exploratory Data Analysis (EDA)
+```r
+# Install required Bioconductor packages
+BiocManager::install(c("DESeq2", "org.Hs.eg.db", "apeglm", 
+                       "pheatmap", "fgsea", "msigdbr"))
+install.packages(c("tidyverse", "ggrepel"))
 
-- Principal Component Analysis (PCA) to assess sample relationships
-- Hierarchical clustering and sample distance heatmaps
-- Visualization of library complexity and outliers
+# Load libraries
+library(DESeq2)
+library(apeglm)
+library(tidyverse)
+library(ggrepel)
+library(org.Hs.eg.db)
+library(pheatmap)
+library(RColorBrewer)
+library(fgsea)
+library(msigdbr)
+
+```
+### Data Import and Preprocessing
+   - Import FeatureCounts output matrix
+   - Remove annotation columns (first 5 columns: Chr, Start, End, Strand, Length)
+   - Rename samples with meaningful identifiers
+   - Filter lowly expressed genes (minimum 10 reads across all samples)
+
+```r
+
+# Read FeatureCounts output
+data <- read.table("featurecounts.txt", header = TRUE, 
+                   row.names = 1, sep = "\t", check.names = FALSE)
+
+# Extract count matrix and rename samples
+counts <- data[, 6:ncol(data)]
+colnames(counts) <- c(
+  paste0("Control_rep", 1:5),
+  paste0("Cyp_IL1b_rep", 1:5),
+  paste0("Cyp_rep", 1:5),
+  paste0("IL1b_rep", 1:5)
+)
+
+# Filter low-count genes
+counts_filtered <- counts[rowSums(counts) >= 10, ]
+
+```
+
+### 14.2 Experimental Design and DESeq2 Setup
+### Create Metadata
+
+```r
+
+conditions <- c(rep("Control", 5), rep("Cyp_IL1b", 5),
+                rep("Cyp", 5), rep("IL1b", 5))
+coldata <- data.frame(condition = factor(conditions),
+                      row.names = colnames(counts_filtered))
+
+```
+### Build DESeq2 Dataset
+
+```r
+
+dds <- DESeqDataSetFromMatrix(
+  countData = counts_filtered,
+  colData = coldata,
+  design = ~ condition
+)
+
+```
 
 ### 14.3 Differential Gene Expression Analysis
+Two primary comparisons were performed to understand the biological effects:
 
-- Use tools such as [`DESeq2`](https://bioconductor.org/packages/release/bioc/html/DESeq2.html), [`edgeR`](https://bioconductor.org/packages/release/bioc/html/edgeR.html), or [`limma-voom`](https://bioconductor.org/packages/release/bioc/html/limma.html)
-- Specify design matrix reflecting biological conditions
-- Estimate dispersion, fit models, run statistical tests
-- Generate lists of differentially expressed genes (DEGs)
+### Comparison 1: IL-1β vs Control
+Identifies genes responding to inflammatory stimulation
 
-### 14.4 Visualization of Results
+```r
 
-- MA plots, volcano plots
-- Heatmaps for top DEGs across samples
-- Gene expression plots (boxplots, barplots)
+dds1 <- dds
+dds1$condition <- relevel(dds1$condition, ref = "Control")
+dds1 <- DESeq(dds1)
 
-### 14.5 Functional Enrichment Analysis
+# Extract results with log2 fold change shrinkage
+res1 <- results(dds1, contrast = c("condition", "IL1b", "Control"))
+resLFC1 <- lfcShrink(dds1, coef = "condition_IL1b_vs_Control", type = "apeglm")
 
-- Gene Ontology (GO) enrichment (using `clusterProfiler`, `topGO`, `gProfiler`, etc.)
-- Pathway analysis (e.g., KEGG, Reactome)
+# Annotate with gene symbols
+resLFC1$gene <- mapIds(org.Hs.eg.db, keys = rownames(resLFC1),
+                       column = "SYMBOL", keytype = "ENSEMBL",
+                       multiVals = "first")
 
-### 14.6 Advanced/Optional Analyses
+```
+### Comparison 2: Cyp+IL-1β vs IL-1β
+Identifies genes where cyproheptadine modulates the inflammatory response
 
-- Gene Set Enrichment Analysis (GSEA)
-- Splicing analysis (e.g., using rMATS, DEXSeq)
-- Cell type deconvolution (if bulk tissue)
-- Integration with external data (TCGA, GTEx)
-- Visualization in genome browser (IGV)
+```r
 
+dds2 <- dds
+dds2$condition <- relevel(dds2$condition, ref = "IL1b")
+dds2 <- DESeq(dds2)
+
+res2 <- results(dds2, contrast = c("condition", "Cyp_IL1b", "IL1b"))
+resLFC2 <- lfcShrink(dds2, coef = "condition_Cyp_IL1b_vs_IL1b", type = "apeglm")
+
+# Annotate with gene symbols
+resLFC2$gene <- mapIds(org.Hs.eg.db, keys = rownames(resLFC2),
+                       column = "SYMBOL", keytype = "ENSEMBL",
+                       multiVals = "first")
+
+```
+
+### Export Results Files:
+- All genes with statistics (complete results)
+- Significant genes (padj < 0.05, |log2FC| > 1)
+- Top 40 genes by adjusted p-value
+- Ranked gene lists for GSEA (.rnk format)
+
+```r
+
+# ----------------
+# All genes
+# ----------------
+
+# IL1b vs Control
+res1_df <- as.data.frame(resLFC1) %>%
+  rownames_to_column("ensembl_id")
+
+write.csv(
+  res1_df,
+  "DESeq/CSV_Files/IL1b_vs_Control/IL1b_vs_Control_all_genes.csv",
+  row.names = FALSE
+)
+
+# Cyp_IL1b vs IL1b
+res2_df <- as.data.frame(resLFC2) %>%
+  rownames_to_column("ensembl_id")
+
+write.csv(
+  res2_df,
+  "DESeq/CSV_Files/Cyp_IL1b_vs_IL1b/Cyp_IL1b_vs_IL1b_all_genes.csv",
+  row.names = FALSE
+)
+
+# ----------------
+# Significant genes (padj < 0.05, |log2FC| > 1)
+# ----------------
+
+# IL1b vs Control
+sig1 <- res1_df %>%
+  filter(!is.na(padj)) %>%
+  filter(padj < 0.05 & abs(log2FoldChange) > 1)
+
+write.csv(
+  sig1,
+  "DESeq/CSV_Files/IL1b_vs_Control/IL1b_vs_Control_sig_genes.csv",
+  row.names = FALSE
+)
+
+# Cyp_IL1b vs IL1b
+sig2 <- res2_df %>%
+  filter(!is.na(padj)) %>%
+  filter(padj < 0.05 & abs(log2FoldChange) > 1)
+
+write.csv(
+  sig2,
+  "DESeq/CSV_Files/Cyp_IL1b_vs_IL1b/Cyp_IL1b_vs_IL1b_sig_genes.csv",
+  row.names = FALSE
+)
+
+# ----------------
+# Top 40 genes (by adjusted p-value)
+# ----------------
+
+# IL1b vs Control
+top1 <- sig1 %>%
+  arrange(padj) %>%
+  head(40)
+
+write.csv(
+  top1,
+  "DESeq/CSV_Files/IL1b_vs_Control/IL1b_vs_Control_top40_genes.csv",
+  row.names = FALSE
+)
+
+# Cyp_IL1b vs IL1b
+top2 <- sig2 %>%
+  arrange(padj) %>%
+  head(40)
+
+write.csv(
+  top2,
+  "DESeq/CSV_Files/Cyp_IL1b_vs_IL1b/Cyp_IL1b_vs_IL1b_top40_genes.csv",
+  row.names = FALSE
+)
+
+# ----------------
+# Ranked files (for GSEA)
+# ----------------
+
+# IL1b vs Control
+rank1 <- as.data.frame(res1) %>%
+  rownames_to_column("ensembl_id") %>%
+  mutate(
+    gene = mapIds(
+      org.Hs.eg.db,
+      keys = ensembl_id,
+      column = "SYMBOL",
+      keytype = "ENSEMBL",
+      multiVals = "first"
+    )
+  ) %>%
+  dplyr::filter(!is.na(stat)) %>%
+  dplyr::select(gene, stat) %>%
+  dplyr::arrange(desc(stat))
+
+write.table(
+  rank1,
+  "DESeq/CSV_Files/IL1b_vs_Control/IL1b_vs_Control_rank.rnk",
+  sep = "\t",
+  row.names = FALSE,
+  quote = FALSE
+)
+
+# Cyp_IL1b vs IL1b
+rank2 <- as.data.frame(res2) %>%
+  rownames_to_column("ensembl_id") %>%
+  mutate(
+    gene = mapIds(
+      org.Hs.eg.db,
+      keys = ensembl_id,
+      column = "SYMBOL",
+      keytype = "ENSEMBL",
+      multiVals = "first"
+    )
+  ) %>%
+  dplyr::filter(!is.na(stat)) %>%
+  dplyr::select(gene, stat) %>%
+  dplyr::arrange(desc(stat))
+
+write.table(
+  rank2,
+  "DESeq/CSV_Files/Cyp_IL1b_vs_IL1b/Cyp_IL1b_vs_IL1b_rank.rnk",
+  sep = "\t",
+  row.names = FALSE,
+  quote = FALSE
+)
+
+```
+
+### 14.4 Quality Control and Exploratory Analysis
+
+Variance Stabilizing Transformation
+
+```r
+vsd <- vst(dds, blind = FALSE)
+```
+
+### Principal Component Analysis (PCA)
+- Visualizes sample clustering and batch effects
+- Shows variance explained by each principal component
+- Color-coded by experimental condition
+
+```r
+
+plot_PCA <- function(vsd.obj) {
+  pcaData <- plotPCA(vsd.obj, intgroup = c("condition"), returnData = TRUE)
+  percentVar <- round(100 * attr(pcaData, "percentVar"))
+  ggplot(pcaData, aes(PC1, PC2, color = condition)) +
+    geom_point(size = 3) +
+    labs(x = paste0("PC1: ", percentVar[1], "% variance"),
+         y = paste0("PC2: ", percentVar[2], "% variance"),
+         title = "PCA Plot colored by condition")
+}
+
+plot_PCA(vsd)
+
+```
+### Sample Distance Heatmap
+- Euclidean distance matrix between samples
+- Hierarchical clustering to identify sample relationships
+- Helps detect outliers and verify replicate consistency
+
+```r
+plotDists <- function(vsd.obj) {
+  sampleDists <- dist(t(assay(vsd.obj)))
+  sampleDistMatrix <- as.matrix(sampleDists)
+  
+  rownames(sampleDistMatrix) <- colnames(vsd.obj)
+  colnames(sampleDistMatrix) <- colnames(vsd.obj)
+  
+  colors <- colorRampPalette(rev(brewer.pal(9, "Blues")))(255)
+  
+  pheatmap(sampleDistMatrix,
+           clustering_distance_rows = sampleDists,
+           clustering_distance_cols = sampleDists,
+           col = colors,
+           main = "Sample-to-Sample Distance Heatmap")
+}
+
+plotDists(vsd)
+
+```
+
+### Variable Gene Heatmap
+- Displays top 40 most variable genes across all samples
+- Row-centered expression values (z-scores)
+- Genes annotated with HUGO symbols
+- Samples annotated by condition
+
+```r
+
+variable_gene_heatmap <- function(vsd.obj, num_genes = 40,
+                                  title = "Top Variable Genes Heatmap") {
+  # Extract VST counts and compute row variances
+  mat <- assay(vsd.obj)
+  rv <- rowVars(mat)
+  
+  # Select top variable genes and center
+  top_mat <- mat[order(rv, decreasing = TRUE)[1:num_genes], ]
+  top_mat <- top_mat - rowMeans(top_mat)
+  
+  # Map Ensembl IDs to gene symbols
+  gene_symbols <- mapIds(org.Hs.eg.db,
+                        keys = rownames(top_mat),
+                        column = "SYMBOL",
+                        keytype = "ENSEMBL",
+                        multiVals = "first")
+  
+  rownames(top_mat) <- ifelse(is.na(gene_symbols),
+                              rownames(top_mat),
+                              gene_symbols)
+  
+  # Plot heatmap with condition annotation
+  annotation_col <- data.frame(
+    condition = colData(vsd.obj)$condition
+  )
+  rownames(annotation_col) <- colnames(top_mat)
+  
+  pheatmap(top_mat,
+           annotation_col = annotation_col,
+           fontsize_row = 250 / num_genes,
+           border_color = NA,
+           main = title)
+}
+
+variable_gene_heatmap(vsd, num_genes = 40)
+
+```
+
+### 14.5 Visualization of Differential Expression Results
+
+### Volcano Plots
+- X-axis: log2 fold change
+- Y-axis: -log10 adjusted p-value
+- Significance thresholds: padj < 0.05 and |log2FC| ≥ 1
+- Labeling: Top 10 significant genes labeled with gene symbols
+
+```r
+
+volcano_plot_gg <- function(csv_file, title_text, label_n = 10) {
+  df <- read.csv(csv_file, stringsAsFactors = FALSE)
+  
+  df <- df %>%
+    filter(!is.na(padj)) %>%
+    mutate(
+      sig = ifelse(padj < 0.05 & abs(log2FoldChange) >= 1,
+                   "Significant", "Not significant"),
+      neg_log10_padj = -log10(padj)
+    )
+  
+  label_df <- df %>%
+    filter(sig == "Significant") %>%
+    arrange(padj) %>%
+    head(label_n)
+  
+  ggplot(df, aes(x = log2FoldChange, y = neg_log10_padj)) +
+    geom_point(aes(color = sig), alpha = 0.6, size = 1) +
+    scale_color_manual(values = c("Not significant" = "blue",
+                                  "Significant" = "red")) +
+    geom_vline(xintercept = c(-1, 1), linetype = "dashed") +
+    geom_hline(yintercept = -log10(0.05), linetype = "dashed") +
+    geom_text_repel(data = label_df, aes(label = gene), size = 3) +
+    labs(title = title_text,
+         x = "log2 Fold Change",
+         y = "-log10 adjusted p-value") +
+    theme_minimal()
+}
+
+# Generate volcano plots
+volcano_plot_gg(
+  "DESeq/CSV_Files/IL1b_vs_Control/IL1b_vs_Control_all_genes.csv",
+  "Volcano Plot: IL1b vs Control"
+)
+
+volcano_plot_gg(
+  "DESeq/CSV_Files/Cyp_IL1b_vs_IL1b/Cyp_IL1b_vs_IL1b_all_genes.csv",
+  "Volcano Plot: Cyp_IL1b vs IL1b"
+)
+
+```
+
+### Log2 Fold Change Comparison Plot
+- Compares gene expression changes between two contrasts
+- Identifies genes significantly altered in one or both conditions
+- Color-coded by significance pattern:
+  1. Genes significant only in IL-1β treatment
+  2. Genes significant only with cyproheptadine
+  3. Genes significant in both comparisons
+- Highlights genes showing reversal effects (cyproheptadine counteracting IL-1β)
+
+
+```r
+
+compare_significant_genes <- function(res1, res2,
+                                      padj_cutoff = 0.0001,
+                                      ngenes = 250, nlabel = 10,
+                                      samplenames = c("comparison1", "comparison2"),
+                                      title = "") {
+  # Get most up/downregulated genes for each comparison
+  genes1 <- rbind(head(res1[which(res1$padj < padj_cutoff), ], ngenes),
+                  tail(res1[which(res1$padj < padj_cutoff), ], ngenes))
+  genes2 <- rbind(head(res2[which(res2$padj < padj_cutoff), ], ngenes),
+                  tail(res2[which(res2$padj < padj_cutoff), ], ngenes))
+  
+  # Combine data from both comparisons
+  de_union <- union(genes1$ensembl_id, genes2$ensembl_id)
+  res1_union <- res1[match(de_union, res1$ensembl_id), ]
+  res2_union <- res2[match(de_union, res2$ensembl_id), ]
+  combined <- left_join(res1_union, res2_union, 
+                       by = "ensembl_id", suffix = samplenames)
+  
+  # Identify significance patterns
+  combined$de_condition <- case_when(
+    combined$ensembl_id %in% intersect(genes1$ensembl_id, genes2$ensembl_id) 
+      ~ "Significant in Both",
+    combined$ensembl_id %in% setdiff(genes1$ensembl_id, genes2$ensembl_id) 
+      ~ paste0("Significant in ", samplenames[1]),
+    combined$ensembl_id %in% setdiff(genes2$ensembl_id, genes1$ensembl_id) 
+      ~ paste0("Significant in ", samplenames[2])
+  )
+  
+  # Plot with labeled top genes in each category
+  ggplot(combined, aes_string(
+    x = paste0("`log2FoldChange", samplenames[1], "`"),
+    y = paste0("`log2FoldChange", samplenames[2], "`"))) +
+    geom_point(aes(color = de_condition), size = 0.7) +
+    scale_color_manual(values = c("#00BA38", "#619CFF", "#F8766D")) +
+    geom_vline(xintercept = 0, linetype = 2) +
+    geom_hline(yintercept = 0, linetype = 2) +
+    labs(title = title,
+         x = paste0("log2FoldChange in ", samplenames[1]),
+         y = paste0("log2FoldChange in ", samplenames[2])) +
+    theme_minimal()
+}
+
+# Read results and compare
+res1 <- read.csv("DESeq/CSV_Files/IL1b_vs_Control/IL1b_vs_Control_all_genes.csv")
+res2 <- read.csv("DESeq/CSV_Files/Cyp_IL1b_vs_IL1b/Cyp_IL1b_vs_IL1b_all_genes.csv")
+
+compare_significant_genes(res1, res2,
+  samplenames = c("IL1b_vs_Control", "Cyp_IL1b_vs_IL1b"),
+  title = "Gene-level reversal of IL1b effects by Cyp")
+
+```
+
+### Differential Expression Heatmaps
+- Top 30 genes ranked by absolute log2 fold change
+- Row-scaled (z-score) VST-normalized expression
+- Hierarchical clustering of genes and samples
+- Separate heatmaps for each comparison
+
+```r
+
+DE_gene_heatmap_biological <- function(res, vsd,
+                                       padj_cutoff = 0.05,
+                                       ngenes = 30,
+                                       title = "Top DE genes") {
+  # Select significant genes with highest fold changes
+  sig_genes <- res %>%
+    as.data.frame() %>%
+    filter(!is.na(padj), padj < padj_cutoff) %>%
+    arrange(desc(abs(log2FoldChange))) %>%
+    head(ngenes)
+  
+  gene_ids <- rownames(sig_genes)
+  mat <- assay(vsd)[gene_ids, ]
+  
+  # Replace Ensembl IDs with gene symbols
+  rownames(mat) <- ifelse(is.na(sig_genes$gene),
+                         gene_ids, sig_genes$gene)
+  
+  # Sample annotation
+  annotation_col <- data.frame(
+    Condition = colData(vsd)$condition
+  )
+  rownames(annotation_col) <- colnames(mat)
+  
+  # Plot scaled heatmap
+  colors <- colorRampPalette(rev(brewer.pal(9, "RdBu")))(255)
+  pheatmap(mat,
+           color = colors,
+           scale = "row",
+           cluster_rows = TRUE,
+           cluster_cols = TRUE,
+           annotation_col = annotation_col,
+           fontsize_row = 200 / ngenes,
+           border_color = NA,
+           main = title)
+}
+
+# Generate heatmaps for both comparisons
+DE_gene_heatmap_biological(resLFC1, vsd,
+  title = "Top IL-1β-responsive genes")
+
+DE_gene_heatmap_biological(resLFC2, vsd,
+  title = "Genes most altered by Cyp under IL-1β")
+
+```
+
+### 14.6 Gene Set Enrichment Analysis (GSEA)
+
+### Load Hallmark Gene Sets
+
+```r
+
+# Load MSigDB Hallmark gene sets
+hallmark_sets <- msigdbr(species = "Homo sapiens", category = "H")
+hallmark_list <- split(hallmark_sets$gene_symbol,
+                       hallmark_sets$gs_name)
+
+```
+
+### Prepare Ranked Gene Lists
+- Genes ranked by Wald test statistic
+- Duplicates and NAs removed
+- Sorted in descending order
+
+```r
+
+# IL1b vs Control
+rank1 <- read.table(
+  "DESeq/CSV_Files/IL1b_vs_Control/IL1b_vs_Control_rank.rnk",
+  header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+
+gene_list_IL1b <- rank1$stat
+names(gene_list_IL1b) <- rank1$gene
+
+# Remove NA and duplicates
+gene_list_IL1b <- gene_list_IL1b[!is.na(names(gene_list_IL1b))]
+gene_list_IL1b <- gene_list_IL1b[!duplicated(names(gene_list_IL1b))]
+gene_list_IL1b <- sort(gene_list_IL1b, decreasing = TRUE)
+
+# Cyp_IL1b vs IL1b
+rank2 <- read.table(
+  "DESeq/CSV_Files/Cyp_IL1b_vs_IL1b/Cyp_IL1b_vs_IL1b_rank.rnk",
+  header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+
+gene_list_Cyp <- rank2$stat
+names(gene_list_Cyp) <- rank2$gene
+
+gene_list_Cyp <- gene_list_Cyp[!is.na(names(gene_list_Cyp))]
+gene_list_Cyp <- gene_list_Cyp[!duplicated(names(gene_list_Cyp))]
+gene_list_Cyp <- sort(gene_list_Cyp, decreasing = TRUE)
+
+```
+
+### Run fgsea
+
+```r
+
+fgsea_IL1b <- fgsea(
+  pathways = hallmark_list,
+  stats = gene_list_IL1b,
+  minSize = 15,
+  maxSize = 500,
+  nperm = 10000
+)
+
+fgsea_Cyp <- fgsea(
+  pathways = hallmark_list,
+  stats = gene_list_Cyp,
+  minSize = 15,
+  maxSize = 500,
+  nperm = 10000
+)
+
+```
+
+### Compare GSEA Results Across Conditions
+
+```r
+
+# Merge GSEA results from both comparisons
+compare_hallmark <- fgsea_IL1b %>%
+  dplyr::select(pathway, NES_IL1b = NES, padj_IL1b = padj) %>%
+  dplyr::left_join(
+    fgsea_Cyp %>%
+      dplyr::select(pathway, NES_Cyp = NES, padj_Cyp = padj),
+    by = "pathway"
+  )
+
+# Filter for pathways of interest
+compare_hallmark %>%
+  filter(grepl("INFLAMMATORY|IL6|TNFA|CYTOKINE|AUTOPHAGY", pathway))
+
+```
+
+### Pathway Analysis Visualizations
+    1. Enrichment Plots
+    - Running enrichment score for specific pathways
+    - Example: HALLMARK_INFLAMMATORY_RESPONSE
+    - Generated for both comparisons
+
+```r
+
+plotEnrichment(
+  hallmark_list[["HALLMARK_INFLAMMATORY_RESPONSE"]],
+  gene_list_IL1b
+) +
+  labs(title = "Inflammatory Response – IL1b vs Control")
+
+plotEnrichment(
+  hallmark_list[["HALLMARK_INFLAMMATORY_RESPONSE"]],
+  gene_list_Cyp
+) +
+  labs(title = "Inflammatory Response – Cyp_IL1b vs IL1b")
+
+```
+    2. Waterfall Plots
+    - Normalized Enrichment Score (NES) for all significant pathways (padj < 0.05)
+    - Pathways sorted by NES
+    - Color-coded: Orange (activated/upregulated), Blue (suppressed/downregulated)
+
+```r
+
+waterfall_plot <- function(fgsea_results, graph_title) {
+  fgsea_results %>%
+    filter(padj < 0.05) %>%
+    arrange(desc(NES)) %>%
+    mutate(short_name = str_replace(pathway, "HALLMARK_", "")) %>%
+    ggplot(aes(x = reorder(short_name, NES), y = NES)) +
+    geom_col(aes(fill = NES > 0)) +
+    coord_flip() +
+    scale_fill_manual(
+      values = c("TRUE" = "#D55E00", "FALSE" = "#0072B2"),
+      labels = c("Activated", "Suppressed")
+    ) +
+    labs(title = graph_title,
+         x = "Hallmark Pathway",
+         y = "Normalized Enrichment Score (NES)") +
+    theme_minimal(base_size = 12) +
+    theme(legend.title = element_blank(),
+          axis.text.y = element_text(size = 9),
+          plot.title = element_text(hjust = 0.5))
+}
+
+# Generate waterfall plots for both comparisons
+waterfall_plot(fgsea_IL1b,
+  "Hallmark pathways altered by IL1b treatment")
+
+waterfall_plot(fgsea_Cyp,
+  "Hallmark pathways altered by Cyproheptadine under IL1b")
+
+```
+
+### 14.7 Key Outputs Generated
+### CSV Files:
+- IL1b_vs_Control_all_genes.csv - Complete results with statistics
+- IL1b_vs_Control_sig_genes.csv - Filtered significant genes (padj < 0.05, |log2FC| > 1)
+- IL1b_vs_Control_top40_genes.csv - Top 40 differentially expressed genes
+    - IL1b_vs_Control_rank.rnk - Ranked gene list for GSEA
+    - Corresponding files for Cyp_IL1b_vs_IL1b comparison
+
+Visualizations:
+
+PCA plot
+Sample distance heatmap
+Variable gene heatmap (top 40 genes)
+Volcano plots (2)
+Log2FC comparison scatter plot
+DE gene heatmaps (2)
+GSEA enrichment plots (2)
+Waterfall plots (2)
+
+14.8 Biological Interpretation
+IL-1β Effects:
+
+Identifies inflammatory response signature in chondrocytes
+Reveals genes and pathways activated by cytokine stimulation
+Establishes baseline inflammatory gene expression changes
+Mimics the molecular environment in osteoarthritic cartilage
+
+Cyproheptadine Effects:
+
+Shows how the drug modulates gene expression under inflammatory conditions
+Identifies potential therapeutic mechanisms of action
+Reveals pathways where cyproheptadine counteracts or enhances IL-1β signaling
+Demonstrates gene expression reversal patterns
+
+Clinical Relevance:
+
+This analysis helps understand cyproheptadine's potential as an osteoarthritis therapeutic
+Identifies molecular mechanisms of cartilage protection
+Provides candidate genes and pathways for further validation
+Supports the development of targeted therapies for joint diseases
+
+
+
+
+
+
+
+
+
+
+    
 ---
 
 > *Click on any step in [Quick Navigation](#quick-navigation) to jump directly to that section!*

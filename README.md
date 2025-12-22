@@ -856,10 +856,10 @@ compare_hallmark %>%
 ```
 
 ### Pathway Analysis Visualizations
-    1. Enrichment Plots
-    - Running enrichment score for specific pathways
-    - Example: HALLMARK_INFLAMMATORY_RESPONSE
-    - Generated for both comparisons
+1. Enrichment Plots
+- Running enrichment score for specific pathways
+- Example: HALLMARK_INFLAMMATORY_RESPONSE
+- Generated for both comparisons
 
 ```r
 
@@ -876,10 +876,10 @@ plotEnrichment(
   labs(title = "Inflammatory Response – Cyp_IL1b vs IL1b")
 
 ```
-    2. Waterfall Plots
-    - Normalized Enrichment Score (NES) for all significant pathways (padj < 0.05)
-    - Pathways sorted by NES
-    - Color-coded: Orange (activated/upregulated), Blue (suppressed/downregulated)
+2. Waterfall Plots
+- Normalized Enrichment Score (NES) for all significant pathways (padj < 0.05)
+- Pathways sorted by NES
+- Color-coded: Orange (activated/upregulated), Blue (suppressed/downregulated)
 
 ```r
 
@@ -915,7 +915,6 @@ waterfall_plot(fgsea_Cyp,
 
 ### 14.7 Key Outputs Generated
 CSV files and plots produced by the workflow (examples):
-
 - IL1b_vs_Control_all_genes.csv
 - IL1b_vs_Control_sig_genes.csv
 - IL1b_vs_Control_top40_genes.csv
@@ -924,7 +923,6 @@ CSV files and plots produced by the workflow (examples):
 - PCA plot, sample distance heatmap, variable gene heatmap, volcano plots, log2FC comparison scatter plot, DE gene heatmaps, GSEA enrichment plots, waterfall plots.
 
 ### 14.8 Biological Interpretation
-
 - IL-1β effects: activates inflammatory response programs and identifies genes associated with cartilage degradation and inflammation.
 - Cyproheptadine effects: reveals how Cyp modulates gene expression in inflamed cells and identifies potential pathways where it may counteract IL-1β effects.
 - Clinical relevance: provides candidate genes and pathways for follow-up validation to explore cyproheptadine as a potential therapeutic strategy in osteoarthritis.

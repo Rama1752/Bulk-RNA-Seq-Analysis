@@ -572,6 +572,7 @@ plotDists(vsd)
 dev.off()
 
 ```
+<img src="Plots/Distance_Heatmap.png" width="550" Height="400" alt="Distance_Heatmap">
 
 ### Variable Gene Heatmap
 - Displays top 40 most variable genes across all samples

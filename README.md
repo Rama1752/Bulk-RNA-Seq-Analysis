@@ -543,6 +543,8 @@ plot_PCA(vsd)
 dev.off()
 
 ```
+![PCA plot](Plots/PCA_Plot.png)
+
 ### Sample Distance Heatmap
 - Euclidean distance matrix between samples
 - Hierarchical clustering to identify sample relationships

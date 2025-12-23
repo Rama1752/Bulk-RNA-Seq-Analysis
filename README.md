@@ -717,7 +717,19 @@ volcano_plot_gg(
 dev.off()
 
 ```
-<img src="Plots/Volcano_plot_IL1b_vs_Control.png" width="550" Height="400" alt="Volcano_plot"> <img src="Plots/Volcano_plot_Cyp_IL1b_vs_IL1b.png" width="550" Height="400" alt="Volcano_plot">
+<table>
+  <tr>
+    <td align="center">
+      <b>PCA</b><br>
+      <img src="Plots/Volcano_plot_IL1b_vs_Control.png" width="420">
+    </td>
+    <td align="center">
+      <b>Sample distance heatmap</b><br>
+      <img src="Plots/Volcano_plot_Cyp_IL1b_vs_IL1b.png" width="420">
+    </td>
+  </tr>
+</table>
+
 
 ### Log2 Fold Change Comparison Plot
 - Compares gene expression changes between two contrasts

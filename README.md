@@ -1137,7 +1137,13 @@ CSV files and plots produced by the workflow (examples):
 - IL-1β effects: activates inflammatory response programs and identifies genes associated with cartilage degradation and inflammation.
 - Cyproheptadine effects: reveals how Cyp modulates gene expression in inflamed cells and identifies potential pathways where it may counteract IL-1β effects.
 - Clinical relevance: provides candidate genes and pathways for follow-up validation to explore cyproheptadine as a potential therapeutic strategy in osteoarthritis.
-    
+---
+---
+
+## 📚 Acknowledgments
+
+This workflow is based on the RNA-Seq analysis tutorial by Eric Lu: [bulk-rnaseq-analysis](https://github.com/erilu/bulk-rnaseq-analysis). 
+The pipeline was modified for this cyproheptadine study.
 ---
 
 > *Click on any step in [Quick Navigation](#quick-navigation) to jump directly to that section!*

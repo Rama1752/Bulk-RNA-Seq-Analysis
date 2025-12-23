@@ -1139,7 +1139,6 @@ CSV files and plots produced by the workflow (examples):
 - Clinical relevance: provides candidate genes and pathways for follow-up validation to explore cyproheptadine as a potential therapeutic strategy in osteoarthritis.
 
 ---
----
 
 ### 📚 Acknowledgments
 This workflow is based on the RNA-Seq analysis tutorial by Eric Lu: [bulk-rnaseq-analysis](https://github.com/erilu/bulk-rnaseq-analysis). 

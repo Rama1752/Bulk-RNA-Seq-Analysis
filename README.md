@@ -720,12 +720,12 @@ dev.off()
 <table>
   <tr>
     <td align="center">
-      <b>PCA</b><br>
-      <img src="Plots/Volcano_plot_IL1b_vs_Control.png" width="420">
+      <b>IL1b_vs_Control</b><br>
+      <img src="Plots/Volcano_plot_IL1b_vs_Control.png" width="480">
     </td>
     <td align="center">
-      <b>Sample distance heatmap</b><br>
-      <img src="Plots/Volcano_plot_Cyp_IL1b_vs_IL1b.png" width="420">
+      <b>Cyp_IL1b_vs_IL1b</b><br>
+      <img src="Plots/Volcano_plot_Cyp_IL1b_vs_IL1b.png" width="480">
     </td>
   </tr>
 </table>

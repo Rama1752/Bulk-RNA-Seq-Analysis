@@ -841,23 +841,25 @@ DE_gene_heatmap <- function(
     vsd,
     padj_cutoff = 0.05,
     ngenes = 30,
-    title = "Top DE genes"
+    title = "Top DE genes",
+    condition_order,
+    cluster_cols = FALSE
 ) {
   
   # Select significant genes
   sig_genes <- res %>%
     as.data.frame() %>%
-    filter(!is.na(padj)) %>%
-    filter(padj < padj_cutoff) %>%
-    arrange(desc(abs(log2FoldChange))) %>%
+    dplyr::filter(!is.na(padj)) %>%
+    dplyr::filter(padj < padj_cutoff) %>%
+    dplyr::arrange(desc(abs(log2FoldChange))) %>%
     head(ngenes)
   
   gene_ids <- rownames(sig_genes)
   
-  # Extract VST-normalized expression
+  # Extract VST expression
   mat <- assay(vsd)[gene_ids, ]
   
-  # Replace Ensembl IDs with gene symbols
+  # Replace Ensembl IDs with symbols
   rownames(mat) <- ifelse(
     is.na(sig_genes$gene),
     gene_ids,
@@ -870,18 +872,23 @@ DE_gene_heatmap <- function(
   )
   rownames(annotation_col) <- colnames(mat)
   
+  # Enforce comparison-specific order (KEY FIX)
+  ord <- order(factor(annotation_col$Condition, levels = condition_order))
+  mat <- mat[, ord]
+  annotation_col <- annotation_col[ord, , drop = FALSE]
+  
   # Color palette
   colors <- colorRampPalette(
-    rev(brewer.pal(9, "RdBu"))
+    rev(RColorBrewer::brewer.pal(9, "RdBu"))
   )(255)
   
   # Plot heatmap
-  pheatmap(
+  pheatmap::pheatmap(
     mat,
     color = colors,
     scale = "row",
     cluster_rows = TRUE,
-    cluster_cols = TRUE,
+    cluster_cols = cluster_cols,
     annotation_col = annotation_col,
     fontsize_row = 200 / ngenes,
     fontsize_col = 9,
@@ -896,7 +903,9 @@ DE_gene_heatmap(
   vsd = vsd,
   padj_cutoff = 0.05,
   ngenes = 30,
-  title = "Top IL-1β-responsive genes"
+  title = "Top IL-1β-responsive genes",
+  condition_order = c("Cyp", "Control", "IL1b", "Cyp_IL1b"),
+  cluster_cols = FALSE
 )
 dev.off()
 
@@ -906,7 +915,9 @@ DE_gene_heatmap(
   vsd = vsd,
   padj_cutoff = 0.05,
   ngenes = 30,
-  title = "Genes most altered by Cyp under IL-1β"
+  title = "Suppression of IL-1β–induced genes by Cyp",
+  condition_order = c("Control", "IL1b", "Cyp_IL1b", "Cyp"),
+  cluster_cols = FALSE
 )
 dev.off()
 

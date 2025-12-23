@@ -826,6 +826,7 @@ dev.off()
 
 
 ```
+<img src="Plots/Log2FoldChange_Comparison_Plot.png" width="600" Height="400" alt="Log2FoldChange_Comparison_Plot">
 
 ### Differential Expression Heatmaps
 - Top 30 genes ranked by absolute log2 fold change
@@ -910,6 +911,18 @@ DE_gene_heatmap(
 dev.off()
 
 ```
+<table>
+  <tr>
+    <td align="center">
+      <b>DE_gene_heatmap_IL1b_vs_Control</b><br>
+      <img src="Plots/DE_gene_heatmap_IL1b_vs_Control.png" width="480">
+    </td>
+    <td align="center">
+      <b>DE_gene_heatmap_Cyp_IL1b_vs_IL1b</b><br>
+      <img src="Plots/DE_gene_heatmap_Cyp_IL1b_vs_IL1b.png" width="480">
+    </td>
+  </tr>
+</table>
 
 ### 14.6 Gene Set Enrichment Analysis (GSEA)
 
@@ -1024,6 +1037,19 @@ plotEnrichment(
 dev.off()
 
 ```
+<table>
+  <tr>
+    <td align="center">
+      <b>Enrichment_plot_IL1b_vs_Control</b><br>
+      <img src="Plots/HALLMARK_INFLAMMATORY_RESPONSE_enrichment_IL1b_vs_Control.png" width="480">
+    </td>
+    <td align="center">
+      <b>Enrichment_plot_Cyp_IL1b_vs_IL1b</b><br>
+      <img src="Plots/HALLMARK_INFLAMMATORY_RESPONSE_enrichment_Cyp_IL1b_vs_IL1b.png" width="480">
+    </td>
+  </tr>
+</table>
+
 2. Waterfall Plots
 - Normalized Enrichment Score (NES) for all significant pathways (padj < 0.05)
 - Pathways sorted by NES
@@ -1074,6 +1100,18 @@ waterfall_plot(
 dev.off()
 
 ```
+<table>
+  <tr>
+    <td align="center">
+      <b>Waterfall_plot_IL1b_vs_Control</b><br>
+      <img src="Plots/Waterfall_plot_IL1b_vs_Control.png" width="480">
+    </td>
+    <td align="center">
+      <b>Waterfall_plot_Cyp_IL1b_vs_IL1b</b><br>
+      <img src="Plots/Waterfall_plot_Cyp_IL1b_vs_IL1b.png" width="480">
+    </td>
+  </tr>
+</table>
 
 ### 14.7 Key Outputs Generated
 CSV files and plots produced by the workflow (examples):

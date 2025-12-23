@@ -253,11 +253,13 @@ This comprehensive analysis was performed using R with DESeq2 and related Biocon
 
 ```r
 # Install required Bioconductor packages
-BiocManager::install(c("DESeq2", "org.Hs.eg.db", "apeglm", 
-                       "pheatmap", "fgsea", "msigdbr"))
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+
+BiocManager::install(c("DESeq2", "org.Hs.eg.db", "apeglm", "pheatmap", "fgsea", "msigdbr"))
 install.packages(c("tidyverse", "ggrepel"))
 
-# Load libraries
+# Load required libraries
 library(DESeq2)
 library(apeglm)
 library(tidyverse)
@@ -278,8 +280,11 @@ library(msigdbr)
 ```r
 
 # Read FeatureCounts output
-data <- read.table("featurecounts.txt", header = TRUE, 
-                   row.names = 1, sep = "\t", check.names = FALSE)
+data <- read.table("//wsl.localhost/Ubuntu-24.04/home/rama/RNA-Seq/quants/featurecounts.txt",
+                   header = TRUE,
+                   row.names = 1,
+                   sep = "\t",
+                   check.names = FALSE)
 
 # Extract count matrix and rename samples
 counts <- data[, 6:ncol(data)]
@@ -302,6 +307,7 @@ counts_filtered <- counts[rowSums(counts) >= 10, ]
 
 conditions <- c(rep("Control", 5), rep("Cyp_IL1b", 5),
                 rep("Cyp", 5), rep("IL1b", 5))
+
 coldata <- data.frame(condition = factor(conditions),
                       row.names = colnames(counts_filtered))
 
@@ -335,9 +341,14 @@ res1 <- results(dds1, contrast = c("condition", "IL1b", "Control"))
 resLFC1 <- lfcShrink(dds1, coef = "condition_IL1b_vs_Control", type = "apeglm")
 
 # Annotate with gene symbols
-resLFC1$gene <- mapIds(org.Hs.eg.db, keys = rownames(resLFC1),
+resLFC1$gene <- mapIds(org.Hs.eg.db,
+                       keys = rownames(resLFC1),
                        column = "SYMBOL", keytype = "ENSEMBL",
                        multiVals = "first")
+
+# Sort by adjusted p-value
+resLFC1 <- resLFC1[order(resLFC1$padj, na.last = TRUE), ]
+write.csv(as.data.frame(resLFC1), "DESeq/CSV_Files/IL1b_vs_Control_DEGs.csv")
 
 ```
 ### Comparison 2: Cyp+IL-1β vs IL-1β
@@ -356,6 +367,11 @@ resLFC2 <- lfcShrink(dds2, coef = "condition_Cyp_IL1b_vs_IL1b", type = "apeglm")
 resLFC2$gene <- mapIds(org.Hs.eg.db, keys = rownames(resLFC2),
                        column = "SYMBOL", keytype = "ENSEMBL",
                        multiVals = "first")
+
+# Sort by adjusted p-value
+resLFC2 <- resLFC2[order(resLFC2$padj, na.last = TRUE), ]
+
+write.csv(as.data.frame(resLFC2), "DESeq/CSV_Files/Cyp_IL1b_vs_IL1b_DEGs.csv")
 
 ```
 
@@ -519,10 +535,12 @@ plot_PCA <- function(vsd.obj) {
     geom_point(size = 3) +
     labs(x = paste0("PC1: ", percentVar[1], "% variance"),
          y = paste0("PC2: ", percentVar[2], "% variance"),
-         title = "PCA Plot colored by condition")
+         title = "PCA Plot")
 }
 
+png("DESeq/Plots/PCA_Plot.png", width = 1200, height = 1000, res = 150)
 plot_PCA(vsd)
+dev.off()
 
 ```
 ### Sample Distance Heatmap
@@ -547,7 +565,9 @@ plotDists <- function(vsd.obj) {
            main = "Sample-to-Sample Distance Heatmap")
 }
 
+png("DESeq/Plots/Distance_Heatmap.png", width = 1200, height = 1000, res = 150)
 plotDists(vsd)
+dev.off()
 
 ```
 
@@ -559,41 +579,64 @@ plotDists(vsd)
 
 ```r
 
-variable_gene_heatmap <- function(vsd.obj, num_genes = 40,
+variable_gene_heatmap <- function(vsd.obj,
+                                  num_genes = 500,
                                   title = "Top Variable Genes Heatmap") {
-  # Extract VST counts and compute row variances
+  
+  # Color palette
+  ramp <- colorRampPalette(brewer.pal(11, "RdBu"))
+  colors <- ramp(256)[256:1]
+  
+  # Extract VST counts
   mat <- assay(vsd.obj)
+  
+  # Compute row variances (genes)
   rv <- rowVars(mat)
   
-  # Select top variable genes and center
+  # Select top variable genes
   top_mat <- mat[order(rv, decreasing = TRUE)[1:num_genes], ]
+  
+  # Center genes (row-wise)
   top_mat <- top_mat - rowMeans(top_mat)
   
   # Map Ensembl IDs to gene symbols
-  gene_symbols <- mapIds(org.Hs.eg.db,
-                        keys = rownames(top_mat),
-                        column = "SYMBOL",
-                        keytype = "ENSEMBL",
-                        multiVals = "first")
+  gene_symbols <- mapIds(
+    org.Hs.eg.db,
+    keys = rownames(top_mat),
+    column = "SYMBOL",
+    keytype = "ENSEMBL",
+    multiVals = "first"
+  )
   
-  rownames(top_mat) <- ifelse(is.na(gene_symbols),
-                              rownames(top_mat),
-                              gene_symbols)
+  # Replace rownames (keep Ensembl if symbol is NA)
+  rownames(top_mat) <- ifelse(
+    is.na(gene_symbols),
+    rownames(top_mat),
+    gene_symbols
+  )
   
-  # Plot heatmap with condition annotation
+  # Column annotation (condition only)
   annotation_col <- data.frame(
     condition = colData(vsd.obj)$condition
   )
   rownames(annotation_col) <- colnames(top_mat)
   
-  pheatmap(top_mat,
-           annotation_col = annotation_col,
-           fontsize_row = 250 / num_genes,
-           border_color = NA,
-           main = title)
+  # Plot heatmap
+  pheatmap(
+    top_mat,
+    color = colors,
+    annotation_col = annotation_col,
+    fontsize_col = 8,
+    fontsize_row = 250 / num_genes,
+    border_color = NA,
+    main = title
+  )
 }
 
-variable_gene_heatmap(vsd, num_genes = 40)
+png("DESeq/Plots/variable_gene_Heatmap.png", width = 1200, height = 1000, res = 150)
+variable_gene_heatmap(vsd, num_genes = 40,
+                      title = "Top 40 Variable Genes")
+dev.off()
 
 ```
 
@@ -608,8 +651,11 @@ variable_gene_heatmap(vsd, num_genes = 40)
 ```r
 
 volcano_plot_gg <- function(csv_file, title_text, label_n = 10) {
+  
+  # Read CSV
   df <- read.csv(csv_file, stringsAsFactors = FALSE)
   
+  # Basic filtering and transformation
   df <- df %>%
     filter(!is.na(padj)) %>%
     mutate(
@@ -618,6 +664,7 @@ volcano_plot_gg <- function(csv_file, title_text, label_n = 10) {
       neg_log10_padj = -log10(padj)
     )
   
+  # Genes to label (top by padj)
   label_df <- df %>%
     filter(sig == "Significant") %>%
     arrange(padj) %>%
@@ -627,25 +674,43 @@ volcano_plot_gg <- function(csv_file, title_text, label_n = 10) {
     geom_point(aes(color = sig), alpha = 0.6, size = 1) +
     scale_color_manual(values = c("Not significant" = "blue",
                                   "Significant" = "red")) +
-    geom_vline(xintercept = c(-1, 1), linetype = "dashed") +
-    geom_hline(yintercept = -log10(0.05), linetype = "dashed") +
-    geom_text_repel(data = label_df, aes(label = gene), size = 3) +
-    labs(title = title_text,
-         x = "log2 Fold Change",
-         y = "-log10 adjusted p-value") +
-    theme_minimal()
+    geom_vline(xintercept = c(-1, 1),
+               linetype = "dashed", linewidth = 0.5) +
+    geom_hline(yintercept = -log10(0.05),
+               linetype = "dashed", linewidth = 0.5) +
+    geom_text_repel(
+      data = label_df,
+      aes(label = gene),
+      size = 3,
+      max.overlaps = Inf
+    ) +
+    labs(
+      title = title_text,
+      x = "log2 Fold Change",
+      y = "-log10 adjusted p-value"
+    ) +
+    theme_minimal() +
+    theme(
+      legend.title = element_blank(),
+      plot.title = element_text(hjust = 0.5)
+    )
 }
 
-# Generate volcano plots
+# IL1b vs Control
+png("DESeq/Plots/Volcano_plot_IL1b_vs_Control.png", width = 1200, height = 1000, res = 150)
 volcano_plot_gg(
   "DESeq/CSV_Files/IL1b_vs_Control/IL1b_vs_Control_all_genes.csv",
   "Volcano Plot: IL1b vs Control"
 )
+dev.off()
 
+# Cyp_IL1b vs IL1b
+png("DESeq/Plots/Volcano_plot_Cyp_IL1b_vs_IL1b.png", width = 1200, height = 1000, res = 150)
 volcano_plot_gg(
   "DESeq/CSV_Files/Cyp_IL1b_vs_IL1b/Cyp_IL1b_vs_IL1b_all_genes.csv",
   "Volcano Plot: Cyp_IL1b vs IL1b"
 )
+dev.off()
 
 ```
 
@@ -661,55 +726,87 @@ volcano_plot_gg(
 
 ```r
 
-compare_significant_genes <- function(res1, res2,
-                                      padj_cutoff = 0.0001,
-                                      ngenes = 250, nlabel = 10,
-                                      samplenames = c("comparison1", "comparison2"),
+# Read results files
+res1 <- read.csv(
+  "DESeq/CSV_Files/IL1b_vs_Control/IL1b_vs_Control_all_genes.csv",
+  header = TRUE
+)
+
+res2 <- read.csv(
+  "DESeq/CSV_Files/Cyp_IL1b_vs_IL1b/Cyp_IL1b_vs_IL1b_all_genes.csv",
+  header = TRUE
+)
+
+compare_significant_genes <- function(res1, res2, padj_cutoff = 0.0001, 
+                                      ngenes = 250, nlabel = 10, 
+                                      samplenames = c("comparison1", "comparison2"), 
                                       title = "") {
-  # Get most up/downregulated genes for each comparison
-  genes1 <- rbind(head(res1[which(res1$padj < padj_cutoff), ], ngenes),
+  # Get list of most upregulated or downregulated genes for each results table
+  genes1 <- rbind(head(res1[which(res1$padj < padj_cutoff), ], ngenes), 
                   tail(res1[which(res1$padj < padj_cutoff), ], ngenes))
-  genes2 <- rbind(head(res2[which(res2$padj < padj_cutoff), ], ngenes),
+  genes2 <- rbind(head(res2[which(res2$padj < padj_cutoff), ], ngenes), 
                   tail(res2[which(res2$padj < padj_cutoff), ], ngenes))
   
-  # Combine data from both comparisons
+  # Combine the data from both tables
   de_union <- union(genes1$ensembl_id, genes2$ensembl_id)
-  res1_union <- res1[match(de_union, res1$ensembl_id), ]
-  res2_union <- res2[match(de_union, res2$ensembl_id), ]
-  combined <- left_join(res1_union, res2_union, 
-                       by = "ensembl_id", suffix = samplenames)
+  res1_union <- res1[match(de_union, res1$ensembl_id), ][c("ensembl_id", "log2FoldChange", "gene")]
+  res2_union <- res2[match(de_union, res2$ensembl_id), ][c("ensembl_id", "log2FoldChange", "gene")]
+  combined <- left_join(res1_union, res2_union, by = "ensembl_id", suffix = samplenames)
   
-  # Identify significance patterns
-  combined$de_condition <- case_when(
-    combined$ensembl_id %in% intersect(genes1$ensembl_id, genes2$ensembl_id) 
-      ~ "Significant in Both",
-    combined$ensembl_id %in% setdiff(genes1$ensembl_id, genes2$ensembl_id) 
-      ~ paste0("Significant in ", samplenames[1]),
-    combined$ensembl_id %in% setdiff(genes2$ensembl_id, genes1$ensembl_id) 
-      ~ paste0("Significant in ", samplenames[2])
-  )
+  # Identify overlap between genes in both tables
+  combined$de_condition <- NA_character_
+  combined$de_condition[which(combined$ensembl_id %in% intersect(genes1$ensembl_id, genes2$ensembl_id))] <- "Significant in Both"
+  combined$de_condition[which(combined$ensembl_id %in% setdiff(genes1$ensembl_id, genes2$ensembl_id))] <- paste0("Significant in ", samplenames[1])
+  combined$de_condition[which(combined$ensembl_id %in% setdiff(genes2$ensembl_id, genes1$ensembl_id))] <- paste0("Significant in ", samplenames[2])
   
-  # Plot with labeled top genes in each category
-  ggplot(combined, aes_string(
-    x = paste0("`log2FoldChange", samplenames[1], "`"),
-    y = paste0("`log2FoldChange", samplenames[2], "`"))) +
+  # Find the top most genes within each condition to label on the graph
+  label1 <- rbind(head(combined[which(combined$de_condition == paste0("Significant in ", samplenames[1])), ], nlabel),
+                  tail(combined[which(combined$de_condition == paste0("Significant in ", samplenames[1])), ], nlabel))
+  label2 <- rbind(head(combined[which(combined$de_condition == paste0("Significant in ", samplenames[2])), ], nlabel),
+                  tail(combined[which(combined$de_condition == paste0("Significant in ", samplenames[2])), ], nlabel))
+  label3 <- rbind(head(combined[which(combined$de_condition == "Significant in Both"), ], nlabel),
+                  tail(combined[which(combined$de_condition == "Significant in Both"), ], nlabel))
+  combined_labels <- rbind(label1, label2, label3)
+  
+  # Plot the genes based on log2FoldChange, color coded by significance
+  ggplot(
+    combined,
+    aes_string(
+      x = paste0("`log2FoldChange", samplenames[1], "`"),
+      y = paste0("`log2FoldChange", samplenames[2], "`")
+    )
+  ) +
     geom_point(aes(color = de_condition), size = 0.7) +
     scale_color_manual(values = c("#00BA38", "#619CFF", "#F8766D")) +
-    geom_vline(xintercept = 0, linetype = 2) +
-    geom_hline(yintercept = 0, linetype = 2) +
-    labs(title = title,
-         x = paste0("log2FoldChange in ", samplenames[1]),
-         y = paste0("log2FoldChange in ", samplenames[2])) +
-    theme_minimal()
+    geom_text_repel(
+      data = combined_labels,
+      aes_string(
+        label = paste0("`gene", samplenames[1], "`"),
+        color = "de_condition"
+      ),
+      show.legend = FALSE,
+      size = 3
+    ) +
+    geom_vline(xintercept = 0, size = 0.3, linetype = 2) +
+    geom_hline(yintercept = 0, size = 0.3, linetype = 2) +
+    labs(
+      title = title,
+      x = paste0("log2FoldChange in ", samplenames[1]),
+      y = paste0("log2FoldChange in ", samplenames[2])
+    ) +
+    theme_minimal() +
+    theme(legend.title = element_blank())
 }
 
-# Read results and compare
-res1 <- read.csv("DESeq/CSV_Files/IL1b_vs_Control/IL1b_vs_Control_all_genes.csv")
-res2 <- read.csv("DESeq/CSV_Files/Cyp_IL1b_vs_IL1b/Cyp_IL1b_vs_IL1b_all_genes.csv")
-
-compare_significant_genes(res1, res2,
+png("DESeq/Plots/Log2FoldChange_Comparison_Plot.png", width = 1200, height = 1000, res = 150)
+compare_significant_genes(
+  res1,
+  res2,
   samplenames = c("IL1b_vs_Control", "Cyp_IL1b_vs_IL1b"),
-  title = "Gene-level reversal of IL1b effects by Cyp")
+  title = "Gene-level reversal of IL1b effects by Cyp"
+)
+dev.off()
+
 
 ```
 
@@ -721,23 +818,33 @@ compare_significant_genes(res1, res2,
 
 ```r
 
-DE_gene_heatmap_biological <- function(res, vsd,
-                                       padj_cutoff = 0.05,
-                                       ngenes = 30,
-                                       title = "Top DE genes") {
-  # Select significant genes with highest fold changes
+DE_gene_heatmap <- function(
+    res,
+    vsd,
+    padj_cutoff = 0.05,
+    ngenes = 30,
+    title = "Top DE genes"
+) {
+  
+  # Select significant genes
   sig_genes <- res %>%
     as.data.frame() %>%
-    filter(!is.na(padj), padj < padj_cutoff) %>%
+    filter(!is.na(padj)) %>%
+    filter(padj < padj_cutoff) %>%
     arrange(desc(abs(log2FoldChange))) %>%
     head(ngenes)
   
   gene_ids <- rownames(sig_genes)
+  
+  # Extract VST-normalized expression
   mat <- assay(vsd)[gene_ids, ]
   
   # Replace Ensembl IDs with gene symbols
-  rownames(mat) <- ifelse(is.na(sig_genes$gene),
-                         gene_ids, sig_genes$gene)
+  rownames(mat) <- ifelse(
+    is.na(sig_genes$gene),
+    gene_ids,
+    sig_genes$gene
+  )
   
   # Sample annotation
   annotation_col <- data.frame(
@@ -745,25 +852,45 @@ DE_gene_heatmap_biological <- function(res, vsd,
   )
   rownames(annotation_col) <- colnames(mat)
   
-  # Plot scaled heatmap
-  colors <- colorRampPalette(rev(brewer.pal(9, "RdBu")))(255)
-  pheatmap(mat,
-           color = colors,
-           scale = "row",
-           cluster_rows = TRUE,
-           cluster_cols = TRUE,
-           annotation_col = annotation_col,
-           fontsize_row = 200 / ngenes,
-           border_color = NA,
-           main = title)
+  # Color palette
+  colors <- colorRampPalette(
+    rev(brewer.pal(9, "RdBu"))
+  )(255)
+  
+  # Plot heatmap
+  pheatmap(
+    mat,
+    color = colors,
+    scale = "row",
+    cluster_rows = TRUE,
+    cluster_cols = TRUE,
+    annotation_col = annotation_col,
+    fontsize_row = 200 / ngenes,
+    fontsize_col = 9,
+    border_color = NA,
+    main = title
+  )
 }
 
-# Generate heatmaps for both comparisons
-DE_gene_heatmap_biological(resLFC1, vsd,
-  title = "Top IL-1β-responsive genes")
+png("DESeq/Plots/DE_gene_heatmap_IL1b_vs_Control.png", width = 1200, height = 1000, res = 150)
+DE_gene_heatmap(
+  res = resLFC1,
+  vsd = vsd,
+  padj_cutoff = 0.05,
+  ngenes = 30,
+  title = "Top IL-1β-responsive genes"
+)
+dev.off()
 
-DE_gene_heatmap_biological(resLFC2, vsd,
-  title = "Genes most altered by Cyp under IL-1β")
+png("DESeq/Plots/DE_gene_heatmap_Cyp_IL1b_vs_IL1b.png", width = 1200, height = 1000, res = 150)
+DE_gene_heatmap(
+  res = resLFC2,
+  vsd = vsd,
+  padj_cutoff = 0.05,
+  ngenes = 30,
+  title = "Genes most altered by Cyp under IL-1β"
+)
+dev.off()
 
 ```
 
@@ -863,17 +990,21 @@ compare_hallmark %>%
 
 ```r
 
+png("DESeq/Plots/HALLMARK_INFLAMMATORY_RESPONSE_enrichment_IL1b_vs_Control.png", width = 1200, height = 1000, res = 150)
 plotEnrichment(
   hallmark_list[["HALLMARK_INFLAMMATORY_RESPONSE"]],
   gene_list_IL1b
 ) +
   labs(title = "Inflammatory Response – IL1b vs Control")
+dev.off()
 
+png("DESeq/Plots/HALLMARK_INFLAMMATORY_RESPONSE_enrichment_Cyp_IL1b_vs_IL1b.png", width = 1200, height = 1000, res = 150)
 plotEnrichment(
   hallmark_list[["HALLMARK_INFLAMMATORY_RESPONSE"]],
   gene_list_Cyp
 ) +
   labs(title = "Inflammatory Response – Cyp_IL1b vs IL1b")
+dev.off()
 
 ```
 2. Waterfall Plots
@@ -884,10 +1015,13 @@ plotEnrichment(
 ```r
 
 waterfall_plot <- function(fgsea_results, graph_title) {
+  
   fgsea_results %>%
     filter(padj < 0.05) %>%
     arrange(desc(NES)) %>%
-    mutate(short_name = str_replace(pathway, "HALLMARK_", "")) %>%
+    mutate(
+      short_name = str_replace(pathway, "HALLMARK_", "")
+    ) %>%
     ggplot(aes(x = reorder(short_name, NES), y = NES)) +
     geom_col(aes(fill = NES > 0)) +
     coord_flip() +
@@ -895,21 +1029,32 @@ waterfall_plot <- function(fgsea_results, graph_title) {
       values = c("TRUE" = "#D55E00", "FALSE" = "#0072B2"),
       labels = c("Activated", "Suppressed")
     ) +
-    labs(title = graph_title,
-         x = "Hallmark Pathway",
-         y = "Normalized Enrichment Score (NES)") +
+    labs(
+      title = graph_title,
+      x = "Hallmark Pathway",
+      y = "Normalized Enrichment Score (NES)"
+    ) +
     theme_minimal(base_size = 12) +
-    theme(legend.title = element_blank(),
-          axis.text.y = element_text(size = 9),
-          plot.title = element_text(hjust = 0.5))
+    theme(
+      legend.title = element_blank(),
+      axis.text.y = element_text(size = 9),
+      plot.title = element_text(hjust = 0.5)
+    )
 }
 
-# Generate waterfall plots for both comparisons
-waterfall_plot(fgsea_IL1b,
-  "Hallmark pathways altered by IL1b treatment")
+png("DESeq/Plots/Waterfall_plot_IL1b_vs_Control.png", width = 1200, height = 1000, res = 150)
+waterfall_plot(
+  fgsea_IL1b,
+  "Hallmark pathways altered by IL1b treatment"
+)
+dev.off()
 
-waterfall_plot(fgsea_Cyp,
-  "Hallmark pathways altered by Cyproheptadine under IL1b")
+png("DESeq/Plots/Waterfall_plot_Cyp_IL1b_vs_IL1b.png", width = 1200, height = 1000, res = 150)
+waterfall_plot(
+  fgsea_Cyp,
+  "Hallmark pathways altered by Cyproheptadine under IL1b"
+)
+dev.off()
 
 ```
 

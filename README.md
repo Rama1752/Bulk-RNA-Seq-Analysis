@@ -543,7 +543,7 @@ plot_PCA(vsd)
 dev.off()
 
 ```
-![PCA plot](Plots/PCA_Plot.png)
+<img src="Plots/PCA_Plot.png" width="550" alt="PCA plot">
 
 ### Sample Distance Heatmap
 - Euclidean distance matrix between samples

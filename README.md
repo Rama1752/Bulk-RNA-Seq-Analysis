@@ -1140,8 +1140,7 @@ CSV files and plots produced by the workflow (examples):
 ---
 ---
 
-## 📚 Acknowledgments
-
+### 📚 Acknowledgments
 This workflow is based on the RNA-Seq analysis tutorial by Eric Lu: [bulk-rnaseq-analysis](https://github.com/erilu/bulk-rnaseq-analysis). 
 The pipeline was modified for this cyproheptadine study.
 ---

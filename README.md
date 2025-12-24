@@ -79,10 +79,10 @@ mkdir -p SRA_files FASTQ_files FASTQC_reports Multiqc_reports reference aligned_
 
 ```bash
 #Download SRA files
-prefetch SRR32684363 SRR32684364 SRR32684365 SRR32684366
-SRR32684367 SRR32684368 SRR32684369 SRR32684370 SRR32684371
-SRR32684372 SRR32684373 SRR32684374 SRR32684375 SRR32684376
-SRR32684377 SRR32684378 SRR32684379 SRR32684380 SRR32684381
+prefetch SRR32684363 SRR32684364 SRR32684365 SRR32684366 \
+SRR32684367 SRR32684368 SRR32684369 SRR32684370 SRR32684371 \
+SRR32684372 SRR32684373 SRR32684374 SRR32684375 SRR32684376 \
+SRR32684377 SRR32684378 SRR32684379 SRR32684380 SRR32684381 \
 SRR32684382 --progress
 
 #Covert SRA files to FASTQ files
@@ -231,8 +231,12 @@ infer_experiment.py -i aligned_reads/Cyp_IL1b_rep1.bam \
   -r reference/Homo_sapiens.GRCh38.115.bed
 
 ```
-
+### Interpreting Strandedness Results:
+- ~0.5/0.5: **Unstranded** library (use `-s 0` in featureCounts)
+- "++,--" dominant: **Forward Stranded** library (use `-s 1` in featureCounts)
+- "+-,-+" dominant: **Reverse Stranded** library (use `-s 2` in featureCounts)
 ---
+
 ## 13. Feature Counting (Read Quantification)
 - Count the reads mapping to genes/features.  
 
@@ -257,7 +261,8 @@ This comprehensive analysis was performed using R with DESeq2 and related Biocon
 if (!requireNamespace("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
 
-BiocManager::install(c("DESeq2", "org.Hs.eg.db", "apeglm", "pheatmap", "fgsea", "msigdbr"))
+BiocManager::install(c("DESeq2", "org.Hs.eg.db", "apeglm", "pheatmap",
+                     "fgsea", "msigdbr", "matrixStats"))
 install.packages(c("tidyverse", "ggrepel"))
 
 # Load required libraries
@@ -270,6 +275,7 @@ library(pheatmap)
 library(RColorBrewer)
 library(fgsea)
 library(msigdbr)
+library(matrixStats)
 
 ```
 ### Data Import and Preprocessing
@@ -281,7 +287,7 @@ library(msigdbr)
 ```r
 
 # Read FeatureCounts output
-data <- read.table("//wsl.localhost/Ubuntu-24.04/home/rama/RNA-Seq/quants/featurecounts.txt",
+data <- read.table("quants/featurecounts.txt",
                    header = TRUE,
                    row.names = 1,
                    sep = "\t",
@@ -949,7 +955,7 @@ hallmark_list <- split(hallmark_sets$gene_symbol,
 
 ```
 
-### Prepare Ranked Gene Lists
+### Load Ranked Gene Lists for GSEA
 - Genes ranked by Wald test statistic
 - Duplicates and NAs removed
 - Sorted in descending order

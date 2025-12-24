@@ -1078,17 +1078,20 @@ dev.off()
 waterfall_plot <- function(fgsea_results, graph_title) {
   
   fgsea_results %>%
-    filter(padj < 0.05) %>%
-    arrange(desc(NES)) %>%
-    mutate(
-      short_name = str_replace(pathway, "HALLMARK_", "")
+    dplyr::filter(padj < 0.05) %>%
+    dplyr::arrange(desc(NES)) %>%
+    dplyr::mutate(
+      short_name = stringr::str_replace(pathway, "HALLMARK_", ""),
+      regulation = ifelse(NES > 0, "Activated", "Suppressed")
     ) %>%
     ggplot(aes(x = reorder(short_name, NES), y = NES)) +
-    geom_col(aes(fill = NES > 0)) +
+    geom_col(aes(fill = regulation)) +
     coord_flip() +
     scale_fill_manual(
-      values = c("TRUE" = "#D55E00", "FALSE" = "#0072B2"),
-      labels = c("Activated", "Suppressed")
+      values = c(
+        "Activated"  = "#D55E00",  # orange
+        "Suppressed" = "#0072B2"   # blue
+      )
     ) +
     labs(
       title = graph_title,

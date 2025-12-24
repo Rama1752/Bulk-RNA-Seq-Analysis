@@ -204,8 +204,8 @@ Output: Aligned, Sorted and Indexed BAM files
 ```bash
 
 #QC Check
-qualimap rnaseq -bam aligned_reads/MDA_MB_231_LCOR_OE.bam -gtf reference/Homo_sapiens.GRCh38.115.gtf \
- -outdir rnaseq_qc_results/MDA_MB_231_LCOR_OE --java-mem-size=10G
+qualimap rnaseq -bam aligned_reads/Cyp_IL1b_rep1.bam -gtf reference/Homo_sapiens.GRCh38.115.gtf \
+ -outdir rnaseq_qc_results/Cyp_IL1b_rep1 --java-mem-size=10G
  
 ```
 
@@ -227,7 +227,7 @@ gtf2bed < reference/Homo_sapiens.GRCh38.115.gtf > reference/Homo_sapiens.GRCh38.
 
 ```bash
 
-infer_experiment.py -i aligned_reads/MDA_MB_231_LCOR_OE.bam \
+infer_experiment.py -i aligned_reads/Cyp_IL1b_rep1.bam \
   -r reference/Homo_sapiens.GRCh38.115.bed
 
 ```

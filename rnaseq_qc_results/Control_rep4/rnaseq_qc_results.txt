@@ -1,0 +1,55 @@
+RNA-Seq QC report
+-----------------------------------
+
+>>>>>>> Input
+
+    bam file = aligned_reads/Control_rep4.bam
+    gff file = reference/Homo_sapiens.GRCh38.115.gtf
+    counting algorithm = uniquely-mapped-reads
+    protocol = non-strand-specific
+
+
+>>>>>>> Reads alignment
+
+    reads aligned  = 7,876,684
+    total alignments = 11,750,671
+    secondary alignments = 3,873,987
+    non-unique alignments = 5,129,306
+    aligned to genes  = 4,244,297
+    ambiguous alignments = 462,384
+    no feature assigned = 1,914,356
+    not aligned = 266,861
+    SSP estimation (fwd/rev) = 0.06 / 0.94
+
+
+>>>>>>> Reads genomic origin
+
+    exonic =  4,244,297 (68.92%)
+    intronic = 1,840,729 (29.89%)
+    intergenic = 73,627 (1.2%)
+    overlapping exon = 819,761 (13.31%)
+    rRNA = 0 (0%)
+
+
+>>>>>>> Transcript coverage profile
+
+    5' bias = 0.35
+    3' bias = 0.65
+    5'-3' bias = 0.52
+
+
+>>>>>>> Junction analysis
+
+    reads at junctions = 2,027,974
+
+    ACCT : 4.99%
+    AGGG : 3.94%
+    AGGT : 3.82%
+    AGGA : 3.45%
+    ATCT : 3.34%
+    TCCT : 3.31%
+    CCCT : 3.2%
+    AGCT : 2.73%
+    GCCT : 2.26%
+    AGAT : 2.09%
+    TTCT : 2.05%

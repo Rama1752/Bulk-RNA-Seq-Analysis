@@ -167,6 +167,7 @@ gunzip reference/Homo_sapiens.GRCh38.115.gtf.gz
  - Rename the files for better understanding.
  - Align reads with the Human Genome and convert the SAM file to BAM file.
  - Add threads -p or -@ as per the number of CPU cores available.
+ -I used HISAT2 because it is more memory-efficient than STAR and is well suited for RNA-seq alignment on systems with limited computational resources, while still providing    accurate spliced alignment.
 
 ```bash
 

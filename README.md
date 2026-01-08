@@ -1030,6 +1030,12 @@ compare_hallmark %>%
 
 ```
 
+| Pathway | NES (IL-1β vs Control) | NES (Cyp+IL-1β vs IL-1β) | FDR |
+|-------|-----------------------|--------------------------|-----|
+| IL6–JAK–STAT3 signaling | +2.39 | −2.23 | < 0.001 |
+| Inflammatory response | +2.78 | −2.19 | < 0.001 |
+| TNFα signaling via NF-κB | +2.91 | −2.15 | < 0.001 |
+
 ### Pathway Analysis Visualizations
 1. Enrichment Plots
 - Running enrichment score for specific pathways

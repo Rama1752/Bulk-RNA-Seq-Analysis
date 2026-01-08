@@ -1,10 +1,10 @@
 # Bulk RNA-Seq Analysis
 
-🎯 Project Overview: 
+🎯 Project Overview:
 
-This repository demonstrates a complete bulk RNA-Seq workflow analyzing how human cartilage cells (chondrocytes) respond to cyproheptadine, a drug that shows promise for treating osteoarthritis.  The analysis includes quality control, alignment, quantification, differential expression analysis, and pathway enrichment. 
+This repository demonstrates a complete bulk RNA-Seq workflow analyzing how human cartilage cells (chondrocytes) respond to cyproheptadine, a drug that shows promise for treating osteoarthritis. The analysis compares gene expression under four conditions (drug, inflammatory stimulus, combined treatment, and control) to identify drug effects, inflammatory responses, and any protective/reversal actions of cyproheptadine in inflamed chondrocytes.
 
-The study examined the effects of:  
+The study examined the effects of:
 - **Cyproheptadine** - a drug candidate that may help protect cartilage and slow down osteoarthritis
 - **IL-1β** - an inflammatory molecule that damages cartilage (mimics what happens in osteoarthritis)
 - **Combination treatment** - cyproheptadine given together with IL-1β to see if the drug can protect cells from inflammation
@@ -23,13 +23,12 @@ This dataset helps us compare how cyproheptadine works in healthy cells versus i
 📂 Dataset Information:
 - **GEO Accession:** [GSE291878](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE291878)
 - **Experiment Type:** Expression profiling by high-throughput sequencing
-- **Description:** RNA-Seq experiment in human cartilage cells to see how cyproheptadine changes gene activity in normal conditions and during inflammation.  Osteoarthritis is a common joint disease where cartilage breaks down over time, causing pain and stiffness in joints. 
+- **Description:** RNA-Seq experiment in human cartilage cells to see how cyproheptadine changes gene activity in normal conditions and during inflammation. Osteoarthritis is a common joint disease with no cure, and this study helps identify cyproheptadine as a potential treatment option.
 - **Citations:**
   1. Kurakazu I, Olmer M, Swahn H, Myers K et al. (2025) Histamine H1 receptor inverse agonists improve structure and pain in an osteoarthritis mouse model. J Clin Invest 135(21). [PMID: 40875519]
 
 ## Quick Navigation
-
-- [1.  Downloading necessary tools and make directories](#1-downloading-necessary-tools-and-make-directories)
+- [1. Downloading necessary tools and make directories](#1-downloading-necessary-tools-and-make-directories)
 - [2. Fetching SRA Files](#2-fetching-sra-files)
 - [3. FastQC - Quality Control](#3-fastqc---quality-control)
 - [4. MultiQC](#4-multiqc)
@@ -56,15 +55,14 @@ This dataset helps us compare how cyproheptadine works in healthy cells versus i
 
 ## Workflow
 
-This section documents the practical steps used to process raw SRA data through alignment, quantification, differential expression, and pathway analysis.  Commands show example usage and can be adapted for your own datasets.
+This section documents the practical steps used to process raw SRA data through alignment, quantification, differential expression, and pathway analysis. Commands show example usage and can be adapted (threads, file names) to your compute environment.
 
 ---
 
 ## 1. Downloading necessary tools and make directories
-- Download all the necessary tools and make directories. 
+- Download all the necessary tools and make directories.
 
 ```bash
-
 conda install -y -c bioconda -c conda-forge fastqc multiqc sra-tools hisat2 samtools trimmomatic subread qualimap rseqc bedops
 
 mkdir -p SRA_files FASTQ_files FASTQC_reports Multiqc_reports reference aligned_reads quants rnaseq_qc_results 
@@ -73,9 +71,9 @@ mkdir -p SRA_files FASTQ_files FASTQC_reports Multiqc_reports reference aligned_
 ---
 
 ## 2. Fetching SRA Files
-- Download SRA files using the SRA toolkit. 
+- Download SRA files using the SRA toolkit.
 - Convert the SRA files into FASTQ files using fastq-dump.
-- Save the file in . gz format i.e. gzip file so that it would take less space.
+- Save the file in .gz format i.e. gzip file so that it would take less space.
 
 ```bash
 #Download SRA files
@@ -90,19 +88,18 @@ fastq-dump --outdir FASTQ_files --gzip --skip-technical \
 --readids --read-filter pass --dumpbase --split-3 --clip \
 SRR32684363/SRR32684363.sra
 ```
-Output:  Fastq files
+Output: Fastq files
 
 <img width="1920" height="188" alt="Screenshot (84)" src="https://github.com/user-attachments/assets/92c3ff19-375c-4824-9b08-d61d7104ce97" />
 
 ---
-
 ## 3. FastQC - Quality Control
 - Check the quality of raw sequencing reads using FastQC.
 - Add threads as per the number of CPU cores available.
 ```bash
 
 #Run FASTQC
-fastqc FASTQ_files/*.fastq. gz -o FASTQC_reports/ --threads 8
+fastqc FASTQ_files/*.fastq.gz -o FASTQC_reports/ --threads 8
 
 ```
 Output: FastQC Reports
@@ -112,7 +109,7 @@ Output: FastQC Reports
 ---
 
 ## 4. MultiQC 
-- Merge all the fastqc reports to get a summarised report of it. 
+- Merge all the fastqc reports to get a summarised report of it.
 
 ```bash
 
@@ -125,34 +122,34 @@ Output: Multiqc Report
 ---
 
 ## 5. Trimming Reads (optional)
-- Remove adapter contamination and poor-quality bases if present. 
+- Remove adapter contamination and poor-quality bases if present.
 
 ```bash
 
 trimmomatic SE -threads 8 -phred33 \
-  FASTQ_files/SRR32684363.fastq. gz \
+  FASTQ_files/SRR32684363.fastq.gz \
   FASTQ_files/SRR32684363_trimmed.fastq.gz \
-  TRAILING: 10
+  TRAILING:10
 
 ```  
 ---
 
 ## 6. Post-trimming Quality Control
-- Re-run FastQC after trimming to ensure cleaning steps were effective. 
+- Re-run FastQC after trimming to ensure cleaning steps were effective.
 - Same as step-3
 
 ---
 
 ## 7. Reference Genome Preparation (Indexing)
-- Download HISAT2 prebuilt GRCh38 genome index and ensemble gtf annotation. 
+- Download HISAT2 prebuilt GRCh38 genome index and ensemble gtf annotation.
 
 ```bash
 
-wget https://genome-idx.s3.amazonaws.com/hisat/grch38_genome. tar.gz
-tar -xvzf grch38_genome. tar.gz -C reference/
+wget https://genome-idx.s3.amazonaws.com/hisat/grch38_genome.tar.gz
+tar -xvzf grch38_genome.tar.gz -C reference/
 
 ```
-- Download Ensembl GTF annotation: 
+- Download Ensembl GTF annotation:
 
 ```bash
 
@@ -166,17 +163,17 @@ gunzip reference/Homo_sapiens.GRCh38.115.gtf.gz
 ## 8. Alignment/Mapping
  - Rename the files for better understanding.
  - Align reads with the Human Genome and convert the SAM file to BAM file.
- - Add threads -p or -@ as per the number of CPU cores available. 
- - I used HISAT2 because it is more memory-efficient than STAR and is well suited for RNA-seq alignment on systems with limited computational resources, while still providing accurate spliced alignment. 
+ - Add threads -p or -@ as per the number of CPU cores available.
+ - I used HISAT2 because it is more memory-efficient than STAR and is well suited for RNA-seq alignment on systems with limited computational resources, while still providing    accurate spliced alignment.
 
 ```bash
 
-#Renaming the files: 
+#Renaming the files:
 mv FASTQ_files/SRR32684363.fastq.gz FASTQ_files/Cyp_IL1b_rep1.fastq.gz
 mv FASTQ_files/SRR32684364.fastq.gz FASTQ_files/Cyp_IL1b_rep2.fastq.gz
 mv FASTQ_files/SRR32684365.fastq.gz FASTQ_files/Cyp_IL1b_rep3.fastq.gz
 mv FASTQ_files/SRR32684366.fastq.gz FASTQ_files/Cyp_IL1b_rep4.fastq.gz
-. .... 
+.....
 
 #Aligning the fastq files with genome
 hisat2 -p 6 -q -x reference/grch38/genome -U FASTQ_files/Cyp_IL1b_rep1.fastq.gz | samtools sort -@ 4 -o aligned_reads/Cyp_IL1b_rep1.bam
@@ -186,11 +183,11 @@ hisat2 -p 6 -q -x reference/grch38/genome -U FASTQ_files/Cyp_IL1b_rep1.fastq.gz 
 ---
 
 ## 9. BAM index file
-- Creates . bai index file for fast random access. 
+- Creates .bai index file for fast random access.
 
 ```bash
 
-samtools index -@ 8 -M aligned_reads/*. bam
+samtools index -@ 8 -M aligned_reads/*.bam
 
 ```
 Output: Aligned, Sorted and Indexed BAM files
@@ -199,23 +196,23 @@ Output: Aligned, Sorted and Indexed BAM files
 ---
 
 ## 10. Assessing Alignment Quality
-- Generate reports on mapping performance and quality. 
+- Generate reports on mapping performance and quality.
 
 ```bash
 
 #QC Check
-qualimap rnaseq -bam aligned_reads/Cyp_IL1b_rep1.bam -gtf reference/Homo_sapiens. GRCh38.115.gtf \
+qualimap rnaseq -bam aligned_reads/Cyp_IL1b_rep1.bam -gtf reference/Homo_sapiens.GRCh38.115.gtf \
  -outdir rnaseq_qc_results/Cyp_IL1b_rep1 --java-mem-size=10G
  
 ```
 ---
 
 ## 11. Convert GTF to BED
-- Create a . bed file from Human . gtf file which is required to check strandedness of RNA-Seq data using RSeQC.
+- Create a .bed file from Human .gtf file which is required to check strandedness of RNA-Seq data using RSeQC.
 
 ```bash
 
-gtf2bed < reference/Homo_sapiens. GRCh38.115.gtf > reference/Homo_sapiens.GRCh38.115.bed
+gtf2bed < reference/Homo_sapiens.GRCh38.115.gtf > reference/Homo_sapiens.GRCh38.115.bed
 
 ```
 ---
@@ -226,8 +223,8 @@ gtf2bed < reference/Homo_sapiens. GRCh38.115.gtf > reference/Homo_sapiens.GRCh38
 
 ```bash
 
-infer_experiment. py -i aligned_reads/Cyp_IL1b_rep1.bam \
-  -r reference/Homo_sapiens. GRCh38.115.bed
+infer_experiment.py -i aligned_reads/Cyp_IL1b_rep1.bam \
+  -r reference/Homo_sapiens.GRCh38.115.bed
 
 ```
 ### Interpreting Strandedness Results:
@@ -237,12 +234,12 @@ infer_experiment. py -i aligned_reads/Cyp_IL1b_rep1.bam \
 ---
 
 ## 13. Feature Counting (Read Quantification)
-- Count the reads mapping to genes/features.   
+- Count the reads mapping to genes/features.  
 
 ```bash
 
-featureCounts -S 2 -a reference/Homo_sapiens. GRCh38.115.gtf \
-  -o quants/featurecounts. txt aligned_reads/*. bam
+featureCounts -S 2 -a reference/Homo_sapiens.GRCh38.115.gtf \
+  -o quants/featurecounts.txt aligned_reads/*.bam
 
 ```
 
@@ -250,7 +247,7 @@ featureCounts -S 2 -a reference/Homo_sapiens. GRCh38.115.gtf \
 
 ## 14. Downstream analysis (R / Bioconductor)
 
-This comprehensive analysis was performed using R with DESeq2 and related Bioconductor packages.  The workflow includes differential expression analysis, quality control visualizations, and functional enrichment analysis. 
+This comprehensive analysis was performed using R with DESeq2 and related Bioconductor packages. The workflow includes differential expression analysis, quality control visualizations, and functional enrichment analysis.
 
 ### 14.1  Setup and Data Import
 ### Package Installation and Loading
@@ -260,9 +257,9 @@ This comprehensive analysis was performed using R with DESeq2 and related Biocon
 if (!requireNamespace("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
 
-BiocManager::install(c("DESeq2", "org. Hs.eg.db", "apeglm", "pheatmap",
+BiocManager::install(c("DESeq2", "org.Hs.eg.db", "apeglm", "pheatmap",
                      "fgsea", "msigdbr", "matrixStats"))
-install. packages(c("tidyverse", "ggrepel"))
+install.packages(c("tidyverse", "ggrepel"))
 
 # Load required libraries
 library(DESeq2)
@@ -279,7 +276,7 @@ library(matrixStats)
 ```
 ### Data Import and Preprocessing
    - Import FeatureCounts output matrix
-   - Remove annotation columns (first 5 columns:  Chr, Start, End, Strand, Length)
+   - Remove annotation columns (first 5 columns: Chr, Start, End, Strand, Length)
    - Rename samples with meaningful identifiers
    - Filter lowly expressed genes (minimum 10 reads across all samples)
 
@@ -333,7 +330,7 @@ dds <- DESeqDataSetFromMatrix(
 ---
 
 ### 14.3 Differential Gene Expression Analysis
-Two primary comparisons were performed to understand the biological effects: 
+Two primary comparisons were performed to understand the biological effects:
 
 ### Comparison 1: IL-1β vs Control
 Identifies genes responding to inflammatory stimulation
@@ -349,7 +346,7 @@ res1 <- results(dds1, contrast = c("condition", "IL1b", "Control"))
 resLFC1 <- lfcShrink(dds1, coef = "condition_IL1b_vs_Control", type = "apeglm")
 
 # Annotate with gene symbols
-resLFC1$gene <- mapIds(org.Hs. eg.db,
+resLFC1$gene <- mapIds(org.Hs.eg.db,
                        keys = rownames(resLFC1),
                        column = "SYMBOL", keytype = "ENSEMBL",
                        multiVals = "first")
@@ -379,15 +376,15 @@ resLFC2$gene <- mapIds(org.Hs.eg.db, keys = rownames(resLFC2),
 # Sort by adjusted p-value
 resLFC2 <- resLFC2[order(resLFC2$padj, na.last = TRUE), ]
 
-write.csv(as.data.frame(resLFC2), "DESeq/CSV_Files/Cyp_IL1b_vs_IL1b_DEGs. csv")
+write.csv(as.data.frame(resLFC2), "DESeq/CSV_Files/Cyp_IL1b_vs_IL1b_DEGs.csv")
 
 ```
 
-### Export Results Files: 
+### Export Results Files:
 - All genes with statistics (complete results)
 - Significant genes (padj < 0.05, |log2FC| > 1)
 - Top 40 genes by adjusted p-value
-- Ranked gene lists for GSEA (. rnk format)
+- Ranked gene lists for GSEA (.rnk format)
 
 ```r
 
@@ -411,7 +408,7 @@ res2_df <- as.data.frame(resLFC2) %>%
 
 write.csv(
   res2_df,
-  "DESeq/CSV_Files/Cyp_IL1b_vs_IL1b/Cyp_IL1b_vs_IL1b_all_genes. csv",
+  "DESeq/CSV_Files/Cyp_IL1b_vs_IL1b/Cyp_IL1b_vs_IL1b_all_genes.csv",
   row.names = FALSE
 )
 
@@ -421,13 +418,13 @@ write.csv(
 
 # IL1b vs Control
 sig1 <- res1_df %>%
-  filter(! is.na(padj)) %>%
+  filter(!is.na(padj)) %>%
   filter(padj < 0.05 & abs(log2FoldChange) > 1)
 
 write.csv(
   sig1,
   "DESeq/CSV_Files/IL1b_vs_Control/IL1b_vs_Control_sig_genes.csv",
-  row. names = FALSE
+  row.names = FALSE
 )
 
 # Cyp_IL1b vs IL1b
@@ -437,7 +434,7 @@ sig2 <- res2_df %>%
 
 write.csv(
   sig2,
-  "DESeq/CSV_Files/Cyp_IL1b_vs_IL1b/Cyp_IL1b_vs_IL1b_sig_genes. csv",
+  "DESeq/CSV_Files/Cyp_IL1b_vs_IL1b/Cyp_IL1b_vs_IL1b_sig_genes.csv",
   row.names = FALSE
 )
 
@@ -464,7 +461,7 @@ top2 <- sig2 %>%
 write.csv(
   top2,
   "DESeq/CSV_Files/Cyp_IL1b_vs_IL1b/Cyp_IL1b_vs_IL1b_top40_genes.csv",
-  row. names = FALSE
+  row.names = FALSE
 )
 
 # ----------------
@@ -489,25 +486,25 @@ rank1 <- as.data.frame(res1) %>%
 
 write.table(
   rank1,
-  "DESeq/CSV_Files/IL1b_vs_Control/IL1b_vs_Control_rank. rnk",
+  "DESeq/CSV_Files/IL1b_vs_Control/IL1b_vs_Control_rank.rnk",
   sep = "\t",
   row.names = FALSE,
   quote = FALSE
 )
 
 # Cyp_IL1b vs IL1b
-rank2 <- as. data.frame(res2) %>%
+rank2 <- as.data.frame(res2) %>%
   rownames_to_column("ensembl_id") %>%
   mutate(
     gene = mapIds(
-      org.Hs.eg. db,
+      org.Hs.eg.db,
       keys = ensembl_id,
       column = "SYMBOL",
       keytype = "ENSEMBL",
       multiVals = "first"
     )
   ) %>%
-  dplyr::filter(! is.na(stat)) %>%
+  dplyr::filter(!is.na(stat)) %>%
   dplyr::select(gene, stat) %>%
   dplyr::arrange(desc(stat))
 
@@ -537,7 +534,7 @@ vsd <- vst(dds, blind = FALSE)
 
 ```r
 
-plot_PCA <- function(vsd. obj) {
+plot_PCA <- function(vsd.obj) {
   pcaData <- plotPCA(vsd.obj, intgroup = c("condition"), returnData = TRUE)
   percentVar <- round(100 * attr(pcaData, "percentVar"))
   ggplot(pcaData, aes(PC1, PC2, color = condition)) +
@@ -554,10 +551,10 @@ dev.off()
 ```
 <img src="Plots/PCA_Plot.png" width="550" Height="400" alt="PCA plot">
 
-- IL-1β–treated samples are clearly distinct from Control and Cyproheptadine samples. 
+- IL-1β–treated samples are clearly distinct from Control and Cyproheptadine samples.
 - Control and Cyproheptadine samples cluster closer to each other.
-- One Control replicate lies closer to the Cyproheptadine group, consistent with normal biological variability. 
-- Overall structure indicates treatment-driven transcriptomic differences. 
+- One Control replicate lies closer to the Cyproheptadine group, consistent with normal biological variability.
+- Overall structure indicates treatment-driven transcriptomic differences.
 
 ---
 
@@ -574,7 +571,7 @@ plotDists <- function(vsd.obj) {
   rownames(sampleDistMatrix) <- colnames(vsd.obj)
   colnames(sampleDistMatrix) <- colnames(vsd.obj)
   
-  colors <- colorRampPalette(rev(brewer. pal(9, "Blues")))(255)
+  colors <- colorRampPalette(rev(brewer.pal(9, "Blues")))(255)
   
   pheatmap(sampleDistMatrix,
            clustering_distance_rows = sampleDists,
@@ -588,12 +585,12 @@ plotDists(vsd)
 dev.off()
 
 ```
-<img src="Plots/Distance_Heatmap. png" width="600" Height="400" alt="Distance_Heatmap">
+<img src="Plots/Distance_Heatmap.png" width="600" Height="400" alt="Distance_Heatmap">
 
-- Replicates cluster according to their treatment groups, indicating good reproducibility. 
+- Replicates cluster according to their treatment groups, indicating good reproducibility.
 - Control and Cyproheptadine samples show higher similarity to each other than to IL-1β–treated samples.
-- No samples display abnormal clustering or outlier behavior. 
-- Confirms consistent sample labeling and data quality. 
+- No samples display abnormal clustering or outlier behavior.
+- Confirms consistent sample labeling and data quality.
 ---
 
 ### Variable Gene Heatmap
@@ -626,7 +623,7 @@ variable_gene_heatmap <- function(vsd.obj,
   
   # Map Ensembl IDs to gene symbols
   gene_symbols <- mapIds(
-    org. Hs.eg.db,
+    org.Hs.eg.db,
     keys = rownames(top_mat),
     column = "SYMBOL",
     keytype = "ENSEMBL",
@@ -664,7 +661,7 @@ variable_gene_heatmap(vsd, num_genes = 40,
 dev.off()
 
 ```
-<img src="Plots/variable_gene_Heatmap. png" width="600" Height="400" alt="variable_gene_Heatmap">
+<img src="Plots/variable_gene_Heatmap.png" width="600" Height="400" alt="variable_gene_Heatmap">
 
 ---
 
@@ -685,7 +682,7 @@ volcano_plot_gg <- function(csv_file, title_text, label_n = 10) {
   
   # Filter and transform
   df <- df %>%
-    dplyr::filter(! is.na(padj)) %>%
+    dplyr::filter(!is.na(padj)) %>%
     dplyr::mutate(
       sig = case_when(
         padj < 0.05 & log2FoldChange >=  1 ~ "Upregulated",
@@ -775,7 +772,7 @@ dev.off()
     </td>
     <td align="center">
       <b>Cyp_IL1b_vs_IL1b</b><br>
-      <img src="Plots/Volcano_plot_Cyp_IL1b_vs_IL1b. png" width="480">
+      <img src="Plots/Volcano_plot_Cyp_IL1b_vs_IL1b.png" width="480">
     </td>
   </tr>
 </table>
@@ -795,8 +792,8 @@ dev.off()
 ### Log2 Fold Change Comparison Plot
 - Compares gene expression changes between two contrasts
 - Identifies genes significantly altered in one or both conditions
-- Color-coded by significance pattern: 
-  1.  Genes significant only in IL-1β treatment
+- Color-coded by significance pattern:
+  1. Genes significant only in IL-1β treatment
   2. Genes significant only with cyproheptadine
   3. Genes significant in both comparisons
 - Highlights genes showing reversal effects (cyproheptadine counteracting IL-1β)
@@ -887,7 +884,7 @@ dev.off()
 
 
 ```
-<img src="Plots/Log2FoldChange_Comparison_Plot. png" width="600" Height="400" alt="Log2FoldChange_Comparison_Plot">
+<img src="Plots/Log2FoldChange_Comparison_Plot.png" width="600" Height="400" alt="Log2FoldChange_Comparison_Plot">
  ---
  
 ### Differential Expression Heatmaps
@@ -911,7 +908,7 @@ DE_gene_heatmap <- function(
   # Select significant genes
   sig_genes <- res %>%
     as.data.frame() %>%
-    dplyr::filter(! is.na(padj)) %>%
+    dplyr::filter(!is.na(padj)) %>%
     dplyr::filter(padj < padj_cutoff) %>%
     dplyr::arrange(desc(abs(log2FoldChange))) %>%
     head(ngenes)
@@ -941,11 +938,11 @@ DE_gene_heatmap <- function(
   
   # Color palette
   colors <- colorRampPalette(
-    rev(RColorBrewer::brewer. pal(9, "RdBu"))
+    rev(RColorBrewer::brewer.pal(9, "RdBu"))
   )(255)
   
   # Plot heatmap
-  pheatmap:: pheatmap(
+  pheatmap::pheatmap(
     mat,
     color = colors,
     scale = "row",
@@ -1021,15 +1018,15 @@ hallmark_list <- split(hallmark_sets$gene_symbol,
 
 # IL1b vs Control
 rank1 <- read.table(
-  "DESeq/CSV_Files/IL1b_vs_Control/IL1b_vs_Control_rank. rnk",
+  "DESeq/CSV_Files/IL1b_vs_Control/IL1b_vs_Control_rank.rnk",
   header = TRUE, sep = "\t", stringsAsFactors = FALSE)
 
 gene_list_IL1b <- rank1$stat
 names(gene_list_IL1b) <- rank1$gene
 
 # Remove NA and duplicates
-gene_list_IL1b <- gene_list_IL1b[! is.na(names(gene_list_IL1b))]
-gene_list_IL1b <- gene_list_IL1b[! duplicated(names(gene_list_IL1b))]
+gene_list_IL1b <- gene_list_IL1b[!is.na(names(gene_list_IL1b))]
+gene_list_IL1b <- gene_list_IL1b[!duplicated(names(gene_list_IL1b))]
 gene_list_IL1b <- sort(gene_list_IL1b, decreasing = TRUE)
 
 # Cyp_IL1b vs IL1b
@@ -1040,7 +1037,7 @@ rank2 <- read.table(
 gene_list_Cyp <- rank2$stat
 names(gene_list_Cyp) <- rank2$gene
 
-gene_list_Cyp <- gene_list_Cyp[! is.na(names(gene_list_Cyp))]
+gene_list_Cyp <- gene_list_Cyp[!is.na(names(gene_list_Cyp))]
 gene_list_Cyp <- gene_list_Cyp[!duplicated(names(gene_list_Cyp))]
 gene_list_Cyp <- sort(gene_list_Cyp, decreasing = TRUE)
 
@@ -1096,9 +1093,9 @@ compare_hallmark %>%
 ---
 
 ### Pathway Analysis Visualizations
-1.  Enrichment Plots
+1. Enrichment Plots
 - Running enrichment score for specific pathways
-- Example:  HALLMARK_INFLAMMATORY_RESPONSE
+- Example: HALLMARK_INFLAMMATORY_RESPONSE
 - Generated for both comparisons
 
 ```r
@@ -1134,15 +1131,15 @@ dev.off()
 </table>
 
 #### HALLMARK_INFLAMMATORY_RESPONSE
-- IL-1β strongly activates the inflammatory response pathway. 
-- Cyproheptadine significantly suppresses the same pathway under inflammatory conditions. 
+- IL-1β strongly activates the inflammatory response pathway.
+- Cyproheptadine significantly suppresses the same pathway under inflammatory conditions.
 - Pathway-level suppression supports gene-level reversal observations.
 
 ---
 2. Waterfall Plots
 - Normalized Enrichment Score (NES) for all significant pathways (padj < 0.05)
 - Pathways sorted by NES
-- Color-coded:  Orange (activated/upregulated), Blue (suppressed/downregulated)
+- Color-coded: Orange (activated/upregulated), Blue (suppressed/downregulated)
 
 ```r
 
@@ -1196,7 +1193,7 @@ dev.off()
   <tr>
     <td align="center">
       <b>Waterfall_plot_IL1b_vs_Control</b><br>
-      <img src="Plots/Waterfall_plot_IL1b_vs_Control. png" width="480">
+      <img src="Plots/Waterfall_plot_IL1b_vs_Control.png" width="480">
     </td>
     <td align="center">
       <b>Waterfall_plot_Cyp_IL1b_vs_IL1b</b><br>
@@ -1212,27 +1209,27 @@ CSV files and plots produced by the workflow (examples):
 - IL1b_vs_Control_all_genes.csv
 - IL1b_vs_Control_sig_genes.csv
 - IL1b_vs_Control_top40_genes.csv
-- IL1b_vs_Control_rank. rnk
+- IL1b_vs_Control_rank.rnk
 - Corresponding files for Cyp_IL1b_vs_IL1b
-- PCA plot, sample distance heatmap, variable gene heatmap, volcano plots, log2FC comparison scatter plot, DE gene heatmaps, GSEA enrichment plots, waterfall plots. 
+- PCA plot, sample distance heatmap, variable gene heatmap, volcano plots, log2FC comparison scatter plot, DE gene heatmaps, GSEA enrichment plots, waterfall plots.
 
 ---
 
 ### 14.8 Biological Interpretation
 - IL-1β induces a strong inflammatory transcriptional response in human chondrocytes, consistent with its known role in osteoarthritis-related inflammation.
 - Cyproheptadine alone has a limited effect on global gene expression, suggesting it does not broadly disrupt normal cellular programs.
-- Under inflammatory conditions, cyproheptadine alters the expression of a specific subset of IL-1β–responsive genes rather than reversing the entire inflammatory response. 
-- Suppression of key inflammatory genes and pathways, including the HALLMARK_INFLAMMATORY_RESPONSE pathway, indicates targeted modulation of inflammation. 
+- Under inflammatory conditions, cyproheptadine alters the expression of a specific subset of IL-1β–responsive genes rather than reversing the entire inflammatory response.
+- Suppression of key inflammatory genes and pathways, including the HALLMARK_INFLAMMATORY_RESPONSE pathway, indicates targeted modulation of inflammation.
 - Together, these findings suggest that cyproheptadine selectively attenuates IL-1β–driven inflammatory signaling in chondrocytes.
 
 ---
 ### Results
 The `results.md` file is automatically generated from the analysis outputs using
-`DESeq/scripts/generate_results. R`, ensuring full reproducibility of reported results. 
+`DESeq/scripts/generate_results.R`, ensuring full reproducibility of reported results.
 ---
 ### 📚 Acknowledgments
-This workflow is based on the RNA-Seq analysis tutorial by Eric Lu:  [bulk-rnaseq-analysis](https://github.com/erilu/bulk-rnaseq-analysis). 
-The pipeline was modified for this cyproheptadine study. 
+This workflow is based on the RNA-Seq analysis tutorial by Eric Lu: [bulk-rnaseq-analysis](https://github.com/erilu/bulk-rnaseq-analysis). 
+The pipeline was modified for this cyproheptadine study.
 ---
 
-> *Click on any step in [Quick Navigation](#quick-navigation) to jump directly to that section! *
+> *Click on any step in [Quick Navigation](#quick-navigation) to jump directly to that section!*

@@ -208,7 +208,6 @@ qualimap rnaseq -bam aligned_reads/Cyp_IL1b_rep1.bam -gtf reference/Homo_sapiens
  -outdir rnaseq_qc_results/Cyp_IL1b_rep1 --java-mem-size=10G
  
 ```
-
 ---
 
 ## 11. Convert GTF to BED
@@ -306,6 +305,7 @@ colnames(counts) <- c(
 counts_filtered <- counts[rowSums(counts) >= 10, ]
 
 ```
+---
 
 ### 14.2 Experimental Design and DESeq2 Setup
 ### Create Metadata
@@ -330,6 +330,7 @@ dds <- DESeqDataSetFromMatrix(
 )
 
 ```
+---
 
 ### 14.3 Differential Gene Expression Analysis
 Two primary comparisons were performed to understand the biological effects:
@@ -519,6 +520,7 @@ write.table(
 )
 
 ```
+---
 
 ### 14.4 Quality Control and Exploratory Analysis
 
@@ -552,6 +554,13 @@ dev.off()
 ```
 <img src="Plots/PCA_Plot.png" width="550" Height="400" alt="PCA plot">
 
+- IL-1β–treated samples are clearly distinct from Control and Cyproheptadine samples.
+- Control and Cyproheptadine samples cluster closer to each other.
+- One Control replicate lies closer to the Cyproheptadine group, consistent with normal biological variability.
+- Overall structure indicates treatment-driven transcriptomic differences.
+
+---
+
 ### Sample Distance Heatmap
 - Euclidean distance matrix between samples
 - Hierarchical clustering to identify sample relationships
@@ -580,6 +589,12 @@ dev.off()
 
 ```
 <img src="Plots/Distance_Heatmap.png" width="600" Height="400" alt="Distance_Heatmap">
+
+- Replicates cluster according to their treatment groups, indicating good reproducibility.
+- Control and Cyproheptadine samples show higher similarity to each other than to IL-1β–treated samples.
+- No samples display abnormal clustering or outlier behavior.
+- Confirms consistent sample labeling and data quality.
+---
 
 ### Variable Gene Heatmap
 - Displays top 40 most variable genes across all samples
@@ -650,6 +665,8 @@ dev.off()
 
 ```
 <img src="Plots/variable_gene_Heatmap.png" width="600" Height="400" alt="variable_gene_Heatmap">
+
+---
 
 ### 14.5 Visualization of Differential Expression Results
 
@@ -763,6 +780,17 @@ dev.off()
   </tr>
 </table>
 
+#### IL-1β vs Control
+- 4,489 genes significantly differentially expressed
+- 2,456 genes upregulated
+- 2,033 genes downregulated
+
+#### Cyproheptadine + IL-1β vs IL-1β
+- 1,098 genes significantly differentially expressed
+- 435 genes upregulated
+- 663 genes downregulated
+
+---
 
 ### Log2 Fold Change Comparison Plot
 - Compares gene expression changes between two contrasts
@@ -860,7 +888,8 @@ dev.off()
 
 ```
 <img src="Plots/Log2FoldChange_Comparison_Plot.png" width="600" Height="400" alt="Log2FoldChange_Comparison_Plot">
-
+ ---
+ 
 ### Differential Expression Heatmaps
 - Top 30 genes ranked by absolute log2 fold change
 - Row-scaled (z-score) VST-normalized expression
@@ -968,6 +997,8 @@ dev.off()
   </tr>
 </table>
 
+---
+
 ### 14.6 Gene Set Enrichment Analysis (GSEA)
 
 ### Load Hallmark Gene Sets
@@ -1062,6 +1093,8 @@ compare_hallmark %>%
 | Inflammatory response | +2.78 | −2.19 | < 0.001 |
 | TNFα signaling via NF-κB | +2.91 | −2.15 | < 0.001 |
 
+---
+
 ### Pathway Analysis Visualizations
 1. Enrichment Plots
 - Running enrichment score for specific pathways
@@ -1100,6 +1133,12 @@ dev.off()
   </tr>
 </table>
 
+#### HALLMARK_INFLAMMATORY_RESPONSE
+- IL-1β strongly activates the inflammatory response pathway.
+- Cyproheptadine significantly suppresses the same pathway under inflammatory conditions.
+- Pathway-level suppression supports gene-level reversal observations.
+
+---
 2. Waterfall Plots
 - Normalized Enrichment Score (NES) for all significant pathways (padj < 0.05)
 - Pathways sorted by NES
@@ -1166,6 +1205,8 @@ dev.off()
   </tr>
 </table>
 
+---
+
 ### 14.7 Key Outputs Generated
 CSV files and plots produced by the workflow (examples):
 - IL1b_vs_Control_all_genes.csv
@@ -1175,13 +1216,20 @@ CSV files and plots produced by the workflow (examples):
 - Corresponding files for Cyp_IL1b_vs_IL1b
 - PCA plot, sample distance heatmap, variable gene heatmap, volcano plots, log2FC comparison scatter plot, DE gene heatmaps, GSEA enrichment plots, waterfall plots.
 
-### 14.8 Biological Interpretation
-- IL-1β effects: activates inflammatory response programs and identifies genes associated with cartilage degradation and inflammation.
-- Cyproheptadine effects: reveals how Cyp modulates gene expression in inflamed cells and identifies potential pathways where it may counteract IL-1β effects.
-- Clinical relevance: provides candidate genes and pathways for follow-up validation to explore cyproheptadine as a potential therapeutic strategy in osteoarthritis.
-
 ---
 
+### 14.8 Biological Interpretation
+- IL-1β induces a strong inflammatory transcriptional response in human chondrocytes, consistent with its known role in osteoarthritis-related inflammation.
+- Cyproheptadine alone has a limited effect on global gene expression, suggesting it does not broadly disrupt normal cellular programs.
+- Under inflammatory conditions, cyproheptadine alters the expression of a specific subset of IL-1β–responsive genes rather than reversing the entire inflammatory response.
+- Suppression of key inflammatory genes and pathways, including the HALLMARK_INFLAMMATORY_RESPONSE pathway, indicates targeted modulation of inflammation.
+- Together, these findings suggest that cyproheptadine selectively attenuates IL-1β–driven inflammatory signaling in chondrocytes.
+
+---
+### Results
+The `results.md` file is automatically generated from the analysis outputs using
+`DESeq/scripts/generate_results.R`, ensuring full reproducibility of reported results.
+---
 ### 📚 Acknowledgments
 This workflow is based on the RNA-Seq analysis tutorial by Eric Lu: [bulk-rnaseq-analysis](https://github.com/erilu/bulk-rnaseq-analysis). 
 The pipeline was modified for this cyproheptadine study.

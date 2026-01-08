@@ -666,25 +666,37 @@ volcano_plot_gg <- function(csv_file, title_text, label_n = 10) {
   # Read CSV
   df <- read.csv(csv_file, stringsAsFactors = FALSE)
   
-  # Basic filtering and transformation
+  # Filter and transform
   df <- df %>%
-    filter(!is.na(padj)) %>%
-    mutate(
-      sig = ifelse(padj < 0.05 & abs(log2FoldChange) >= 1,
-                   "Significant", "Not significant"),
+    dplyr::filter(!is.na(padj)) %>%
+    dplyr::mutate(
+      sig = case_when(
+        padj < 0.05 & log2FoldChange >=  1 ~ "Upregulated",
+        padj < 0.05 & log2FoldChange <= -1 ~ "Downregulated",
+        TRUE ~ "Not significant"
+      ),
       neg_log10_padj = -log10(padj)
     )
   
+  # Count DE genes
+  up_n   <- sum(df$sig == "Upregulated")
+  down_n <- sum(df$sig == "Downregulated")
+  
   # Genes to label (top by padj)
   label_df <- df %>%
-    filter(sig == "Significant") %>%
-    arrange(padj) %>%
+    dplyr::filter(sig != "Not significant") %>%
+    dplyr::arrange(padj) %>%
     head(label_n)
   
   ggplot(df, aes(x = log2FoldChange, y = neg_log10_padj)) +
     geom_point(aes(color = sig), alpha = 0.6, size = 1) +
-    scale_color_manual(values = c("Not significant" = "blue",
-                                  "Significant" = "red")) +
+    scale_color_manual(
+      values = c(
+        "Upregulated"     = "red",
+        "Downregulated"   = "blue",
+        "Not significant" = "grey70"
+      )
+    ) +
     geom_vline(xintercept = c(-1, 1),
                linetype = "dashed", linewidth = 0.5) +
     geom_hline(yintercept = -log10(0.05),
@@ -694,6 +706,20 @@ volcano_plot_gg <- function(csv_file, title_text, label_n = 10) {
       aes(label = gene),
       size = 3,
       max.overlaps = Inf
+    ) +
+    annotate(
+      "text",
+      x = Inf, y = Inf,
+      label = paste0("Upregulated: ", up_n),
+      hjust = 1.1, vjust = 2,
+      color = "red", size = 4
+    ) +
+    annotate(
+      "text",
+      x = -Inf, y = Inf,
+      label = paste0("Downregulated: ", down_n),
+      hjust = -0.1, vjust = 2,
+      color = "blue", size = 4
     ) +
     labs(
       title = title_text,

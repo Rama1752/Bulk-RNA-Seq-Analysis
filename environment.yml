@@ -1,0 +1,38 @@
+name: rnaseq_env
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+
+dependencies:
+  # Runtimes 
+  - r-base=4.5.2
+  - python=3.11.14
+
+  # RNA-seq command-line tools
+  - fastqc=0.12.1
+  - multiqc=1.32
+  - sra-tools=3.2.1
+  - hisat2=2.2.1
+  - samtools=1.22.1
+  - subread=2.1.1
+  - qualimap=2.3
+  - rseqc=5.0.4
+  - bedops=2.4.42
+  - trimmomatic=0.40
+
+  # Bioconductor packages
+  - bioconductor-deseq2
+  - bioconductor-apeglm
+  - bioconductor-org.hs.eg.db
+  - bioconductor-pheatmap
+  - bioconductor-fgsea
+  - bioconductor-msigdbr
+  - bioconductor-matrixstats
+
+  # CRAN packages
+  - r-tidyverse
+  - r-ggrepel
+  - r-rcolorbrewer
+
+
